@@ -18,6 +18,11 @@ clock-show-weekday=true
 clock-show-date=true
 show-battery-percentage=false
 
+[org/gnome/desktop/wm/keybindings]
+show-desktop=['<Super>d']
+switch-input-source=@as []
+switch-input-source-backward=@as []
+
 [org/gnome/desktop/wm/preferences]
 button-layout='appmenu:minimize,maximize,close'
 num-workspaces=4
@@ -29,6 +34,23 @@ workspaces-only-on-primary=true
 [org/gnome/shell]
 favorite-apps=['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop']
 enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com', 'arcmenu@arcmenu.com', 'clipboard-history@alexsaveau.dev', 'dash-to-dock@micxgx.gmail.com', 'just-perfection-desktop@just-perfection', 'panel-corners@aunetx', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'azwallpaper@azwallpaper.gitlab.com']
+
+[org/gnome/desktop/input-sources]
+sources=@a(ss) []
+xkb-options=@as []
+
+[org/gnome/settings-daemon/plugins/media-keys]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/']
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+binding='<Super>e'
+command='nautilus'
+name='Files'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1]
+binding='<Super>t'
+command='gnome-terminal'
+name='Terminal'
 
 [org/gnome/desktop/background]
 picture-options='zoom'
@@ -56,4 +78,74 @@ natural-scroll=false
 [org/gnome/shell/extensions/just-perfection]
 panel-position=1
 clock-menu-position=2
+events-button=false
+search=false
+startup-status=0
+weather=false
+world-clock=false
+ripple-box=false
+quick-settings-airplane-mode=false
+quick-settings-do-not-disturb=false
+quick-settings-night-light=false
+calendar=true
+dash=true
+dash-app-running=true
+dash-separator=true
+panel-notification-icon=true
+power-icon=true
+switcher-popup-delay=true
+window-menu=true
+window-menu-take-screenshot-button=true
+
+[org/gnome/shell/extensions/appindicator]
+tray-pos='right'
+legacy-tray-enabled=false
+
+[org/gnome/shell/extensions/arcmenu]
+menu-button-appearance='None'
+menu-layout='GnomeMenu'
+hide-overview-on-startup=true
+show-activities-button=true
+arcmenu-hotkey=@as []
+arcmenu-hotkey-overlay-key-enabled=false
+hotkey-open-primary-monitor=false
+runner-hotkey=['<Super>space']
+runner-position='Centered'
+runner-hotkey-open-primary-monitor=false
+runner-hotkey-overlay-key-enabled=false
+search-entry-border-radius=(true, 25)
+
+[org/gnome/shell/extensions/clipboard-history]
+cache-size=100
+display-mode=3
+toggle-menu=['<Shift><Super>v']
+
+[org/gnome/shell/extensions/dash-to-dock]
+dock-position='BOTTOM'
+dock-fixed=false
+dash-max-icon-size=32
+disable-overview-on-startup=true
+background-opacity=0.80000000000000004
+custom-theme-shrink=true
+height-fraction=0.90000000000000002
+hide-delay=1.0
+animation-time=0.10000000000000002
+apply-custom-theme=false
+intellihide-mode='ALL_WINDOWS'
+preferred-monitor=-2
+require-pressure-to-show=false
+running-indicator-dominant-color=true
+running-indicator-style='DOTS'
+scroll-to-focused-application=true
+shortcut=['<Super>q']
+shortcut-text='<Super>q'
+show-mounts=false
+show-show-apps-button=false
+show-trash=false
+
+[org/gnome/shell/extensions/panel-corners]
+panel-corners=true
+
+[org/gnome/shell/extensions/user-theme]
+name=''
 
