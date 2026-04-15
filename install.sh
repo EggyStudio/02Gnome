@@ -11,7 +11,7 @@ REPO_URL="https://github.com/CanTalat-Yakan/GnomeBlueprint"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 GUM_AVAILABLE=true
 
-# ─── Colours ───────────────────────────────────────────────────────────────────
+# ─── Colors ───────────────────────────────────────────────────────────────────
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
@@ -149,8 +149,8 @@ ESSENTIAL_FLATPAK_APPS=(
     "com.github.tchx84.Flatseal"           # Flatseal - manage Flatpak permissions
     "com.mattjakeman.ExtensionManager"     # Extension Manager - browse & toggle GNOME extensions
     "io.github.fabrialberio.pinapp"        # Pins - create custom app shortcuts
-    "page.codeberg.Addwater.Addwater"      # Add Water - Adwaita theme customisation
-    "io.github.AdrianMoRo.Rewaita"         # Rewaita - Adwaita icon theme variants
+    "dev.qwery.AddWater"                   # Add Water - apply Adwaita theme to Firefox
+    "io.github.swordpuffin.rewaita"        # Rewaita - bring color to Adwaita
     "io.missioncenter.MissionCenter"       # Mission Center - system monitor
 )
 
@@ -756,27 +756,54 @@ ask_download_wallpapers() {
     fi
 }
 
-# ─── Uninstall GNOME bloatware (Flatpak only) ──────────────────────────────────
-GNOME_BLOAT_FLATPAKS=(
-    "org.gnome.Boxes"
-    "org.gnome.Characters"
-    "org.gnome.Connections"
-    "org.gnome.Contacts"
-    "org.gnome.Extensions"
-    "org.gnome.DiskUtility"
-    "org.gnome.baobab"
-    "org.gnome.SimpleScan"
-    "org.fedoraproject.MediaWriter"
-    "org.gnome.Yelp"
-    "org.libreoffice.LibreOffice.Calc"
-    "org.libreoffice.LibreOffice.Impress"
-    "org.libreoffice.LibreOffice.Writer"
-    "org.gnome.Maps"
-    "org.freedesktop.MalcontentControl"
-    "org.gnome.SystemMonitor"
-    "org.gnome.Tour"
-    "org.gnome.Weather"
+# ─── Uninstall GNOME bloatware ──────────────────────────────────────────────────
+# Format: "flatpak-id|dnf-package|Display Name"
+# Use "-" if no flatpak or no dnf package exists for that app.
+GNOME_BLOAT_APPS=(
+    "org.gnome.Boxes|gnome-boxes|Boxes"
+    "org.gnome.Characters|gnome-characters|Characters"
+    "org.gnome.Connections|gnome-connections|Connections"
+    "org.gnome.Contacts|gnome-contacts|Contacts"
+    "org.gnome.Extensions|gnome-extensions-app|Extensions"
+    "org.gnome.DiskUtility|gnome-disk-utility|Disks"
+    "org.gnome.baobab|baobab|Disk Usage Analyser"
+    "org.gnome.SimpleScan|simple-scan|Document Scanner"
+    "org.fedoraproject.MediaWriter|mediawriter|Fedora Media Writer"
+    "org.gnome.Yelp|yelp|Help"
+    "-|libreoffice-calc|LibreOffice Calc"
+    "-|libreoffice-impress|LibreOffice Impress"
+    "-|libreoffice-writer|LibreOffice Writer"
+    "org.gnome.Maps|gnome-maps|Maps"
+    "org.freedesktop.MalcontentControl|malcontent|Parental Controls"
+    "org.gnome.SystemMonitor|gnome-system-monitor|System Monitor"
+    "org.gnome.Tour|gnome-tour|Tour"
+    "org.gnome.Weather|gnome-weather|Weather"
 )
+
+# Packages whose removal would break the desktop — never touch these via dnf.
+PROTECTED_RE="gnome-shell|gdm|mutter|gnome-session|gnome-settings-daemon"
+
+# Safely remove an RPM package: dry-run first, skip if it would cascade into
+# removing any protected desktop component.
+safe_dnf_remove() {
+    local pkg="$1" label="$2"
+
+    # Not installed — nothing to do
+    command -v rpm &>/dev/null || return
+    rpm -q "$pkg" &>/dev/null 2>&1 || return
+
+    # Dry-run: would this also pull gnome-shell / gdm / mutter?
+    local sim
+    sim=$(dnf remove --assumeno --setopt=clean_requirements_on_remove=True "$pkg" 2>&1 || true)
+    if echo "$sim" | grep -qEi "$PROTECTED_RE"; then
+        warning "Skipping $label ($pkg) — removing it would also remove core desktop packages."
+        return
+    fi
+
+    info "Removing RPM: $pkg ($label)..."
+    sudo dnf remove -y --noautoremove "$pkg" 2>/dev/null \
+        || warning "Failed to remove $pkg."
+}
 
 ask_uninstall_bloat() {
     echo ""
@@ -800,12 +827,26 @@ ask_uninstall_bloat() {
         return
     fi
 
-    info "Removing GNOME bloat Flatpaks..."
+    info "Removing GNOME bloat..."
 
-    for app_id in "${GNOME_BLOAT_FLATPAKS[@]}"; do
-        if flatpak list --app --columns=application 2>/dev/null | grep -qx "$app_id"; then
-            info "Removing $app_id..."
-            flatpak uninstall -y "$app_id" 2>/dev/null || warning "Failed to remove $app_id."
+    for entry in "${GNOME_BLOAT_APPS[@]}"; do
+        local flatpak_id="${entry%%|*}"
+        local rest="${entry#*|}"
+        local dnf_pkg="${rest%%|*}"
+        local label="${rest#*|}"
+
+        # 1. Try Flatpak removal (safe, no side-effects)
+        if [ "$flatpak_id" != "-" ]; then
+            if flatpak list --app --columns=application 2>/dev/null | grep -qx "$flatpak_id"; then
+                info "Removing Flatpak: $label..."
+                flatpak uninstall -y "$flatpak_id" 2>/dev/null \
+                    || warning "Failed to remove Flatpak $label."
+            fi
+        fi
+
+        # 2. Try RPM removal (with safety check)
+        if [ "$dnf_pkg" != "-" ] && command -v dnf &>/dev/null; then
+            safe_dnf_remove "$dnf_pkg" "$label"
         fi
     done
 
