@@ -1016,6 +1016,13 @@ ask_download_wallpapers() {
 
     if [ -d "$WALLPAPER_DIR" ]; then
         info "Wallpapers available at $WALLPAPER_DIR"
+
+        # Set the Wallpaper Slideshow extension to use the preferred folder
+        local slideshow_dir="$WALLPAPER_DIR/walls/m-26.jp"
+        if [ -d "$slideshow_dir" ]; then
+            dconf write /org/gnome/shell/extensions/azwallpaper/slideshow-directory "'$slideshow_dir'" 2>/dev/null || true
+            info "Wallpaper Slideshow set to $slideshow_dir"
+        fi
     fi
 }
 
