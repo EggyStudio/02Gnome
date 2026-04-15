@@ -55,6 +55,13 @@ binding='<Super>t'
 command='ptyxis'
 name='Terminal'
 
+[org/gnome/Ptyxis]
+restore-session=false
+restore-window-size=false
+
+[org/gnome/TextEditor]
+restore-session=false
+
 [org/gnome/nautilus/preferences]
 sort-directories-first=true
 show-create-link=true

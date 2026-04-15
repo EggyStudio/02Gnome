@@ -704,6 +704,20 @@ configure_nautilus() {
     info "Nautilus configuration complete."
 }
 
+# ─── Configure app defaults (Terminal, Text Editor) ─────────────────────────────
+configure_app_defaults() {
+    info "Configuring app defaults..."
+
+    # Ptyxis (Terminal) - disable session restore
+    gsettings set org.gnome.Ptyxis restore-session false 2>/dev/null || true
+    gsettings set org.gnome.Ptyxis restore-window-size false 2>/dev/null || true
+
+    # GNOME Text Editor - disable session restore
+    gsettings set org.gnome.TextEditor restore-session false 2>/dev/null || true
+
+    info "App defaults configured."
+}
+
 # ─── Adwaita theme setup (adw-gtk3 + Flatpak overrides) ────────────────────────
 setup_themes() {
     info "Setting up Adwaita themes..."
@@ -1171,26 +1185,28 @@ main() {
     # 12. Nautilus configuration (sort, list view, context menu, starred folders)
     configure_nautilus
 
-    # 13. Download wallpaper collection
+    # 13. App defaults (Terminal, Text Editor - disable session restore)
+    configure_app_defaults
+
+    # 14. Download wallpaper collection
     ask_download_wallpapers
 
-    # 14. Ask to uninstall GNOME bloat
+    # 15. Ask to uninstall GNOME bloat
     ask_uninstall_bloat
 
-    # 15. Optional applications (interactive chooser)
+    # 16. Optional applications (interactive chooser)
     select_and_install_optional_apps
 
-
-    # 16. Pin any installed optional apps to dock favorites
+    # 17. Pin any installed optional apps to dock favorites
     pin_optional_apps_to_favorites
 
-    # 17. Reset app grid (remove folders, single alphabetical view)
+    # 18. Reset app grid (remove folders, single alphabetical view)
     reset_app_grid
 
-    # 18. Final system cleanup & update
+    # 19. Final system cleanup & update
     final_cleanup
 
-    # 19. Ask to reboot
+    # 20. Ask to reboot
     echo ""
     info "Installation complete!"
     ask_reboot
