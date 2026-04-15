@@ -580,16 +580,9 @@ ask_user_preferences() {
     )
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        # Build comma-separated string of labels for pre-selection (exclude opt-in items)
+        # Build comma-separated string of all labels for pre-selection
         local selected_default
-        local _presel=()
-        for _l in "${pref_labels[@]}"; do
-            case "$_l" in
-                "Start with Bluetooth off") ;; # not pre-selected
-                *) _presel+=("$_l") ;;
-            esac
-        done
-        selected_default=$(IFS=,; echo "${_presel[*]}")
+        selected_default=$(IFS=,; echo "${pref_labels[*]}")
 
         local raw
         raw=$(gum choose --no-limit \
