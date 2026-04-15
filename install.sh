@@ -1263,8 +1263,9 @@ reset_app_grid() {
     info "Resetting app grid to flat alphabetical layout..."
 
     # Clear custom page layout → GNOME falls back to auto-sorted alphabetical
+    # Must use reset (not set to empty) so GNOME auto-populates with all installed apps
     gsettings reset org.gnome.shell app-picker-layout 2>/dev/null || true
-    dconf write /org/gnome/shell/app-picker-layout '@aa{sv} []' 2>/dev/null || true
+    dconf reset /org/gnome/shell/app-picker-layout 2>/dev/null || true
 
     # Remove all app folders and their definitions
     gsettings set org.gnome.desktop.app-folders folder-children '@as []' 2>/dev/null || true
