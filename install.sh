@@ -1169,9 +1169,72 @@ main() {
     # 16. Pin any installed optional apps to dock favorites
     pin_optional_apps_to_favorites
 
+    # 17. Final system cleanup & update
+    final_cleanup
+
     echo ""
     info "Installation complete! Log out and back in for all changes to take effect."
     echo ""
+}
+
+# ─── Final system cleanup & update ──────────────────────────────────────────────
+final_cleanup() {
+    info "Running final system cleanup & update..."
+
+    # ── DNF-based systems ───────────────────────────────────────────────────────
+    if command -v dnf &>/dev/null; then
+        # Refresh metadata and upgrade all packages
+        info "Upgrading packages (with refreshed metadata)..."
+        sudo dnf upgrade --refresh -y || warning "dnf upgrade encountered an error."
+
+        # Remove unused dependencies
+        info "Removing unused dependencies..."
+        sudo dnf autoremove -y || warning "dnf autoremove encountered an error."
+
+        # Remove old kernels / installonly packages (keep latest 2)
+        local old_kernels
+        old_kernels=$(dnf repoquery --installonly --latest-limit=-2 -q 2>/dev/null) || true
+        if [ -n "$old_kernels" ]; then
+            info "Removing old kernels..."
+            sudo dnf remove -y $old_kernels || warning "Could not remove old kernels."
+        fi
+
+        # Clean package cache
+        info "Cleaning DNF cache..."
+        sudo dnf clean all || warning "dnf clean encountered an error."
+
+    elif command -v apt-get &>/dev/null; then
+        info "Upgrading packages..."
+        sudo apt-get update -y && sudo apt-get upgrade -y || warning "apt upgrade encountered an error."
+        info "Removing unused dependencies..."
+        sudo apt-get autoremove -y || warning "apt autoremove encountered an error."
+        sudo apt-get clean || true
+
+    elif command -v pacman &>/dev/null; then
+        info "Upgrading packages..."
+        sudo pacman -Syu --noconfirm || warning "pacman update encountered an error."
+    fi
+
+    # ── Flatpak cleanup ─────────────────────────────────────────────────────────
+    if command -v flatpak &>/dev/null; then
+        info "Updating Flatpak applications..."
+        flatpak update -y || warning "flatpak update encountered an error."
+
+        info "Removing unused Flatpak runtimes..."
+        flatpak uninstall --unused -y 2>/dev/null || true
+
+        info "Repairing Flatpak installation..."
+        flatpak repair 2>/dev/null || true
+    fi
+
+    # ── System-wide cache cleanup ───────────────────────────────────────────────
+    info "Trimming systemd journal to 200 MB..."
+    sudo journalctl --vacuum-size=200M 2>/dev/null || true
+
+    info "Clearing thumbnail cache..."
+    rm -rf ~/.cache/thumbnails/* 2>/dev/null || true
+
+    info "System cleanup complete."
 }
 
 main "$@"
