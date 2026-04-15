@@ -989,20 +989,23 @@ USERJS
 }
 
 # ─── Pin installed optional apps to favorites ──────────────────────────────────
-# Maps Flatpak app IDs to their .desktop file names
-declare -A OPTIONAL_DESKTOP_FILES=(
-    ["com.spotify.Client"]="com.spotify.Client.desktop"
-    ["com.discordapp.Discord"]="com.discordapp.Discord.desktop"
-    ["org.signal.Signal"]="org.signal.Signal.desktop"
-    ["com.valvesoftware.Steam"]="com.valvesoftware.Steam.desktop"
-    ["org.videolan.VLC"]="org.videolan.VLC.desktop"
-    ["org.blender.Blender"]="org.blender.Blender.desktop"
-    ["org.gimp.GIMP"]="org.gimp.GIMP.desktop"
-    ["com.unity.UnityHub"]="com.unity.UnityHub.desktop"
-    ["com.visualstudio.code"]="com.visualstudio.code.desktop"
-    ["com.jetbrains.Rider"]="com.jetbrains.Rider.desktop"
-    ["io.github.shiftey.Desktop"]="io.github.shiftey.Desktop.desktop"
-    ["dev.deedles.Trayscale"]="dev.deedles.Trayscale.desktop"
+# Ordered list of Flatpak app IDs → .desktop file names (pinned in this order)
+OPTIONAL_PIN_ORDER=(
+    # Entertainment
+    "com.spotify.Client"
+    "com.discordapp.Discord"
+    "org.signal.Signal"
+    "com.valvesoftware.Steam"
+    "org.videolan.VLC"
+    # Creative
+    "org.blender.Blender"
+    "org.gimp.GIMP"
+    "com.unity.UnityHub"
+    # Utilities
+    "com.visualstudio.code"
+    "com.jetbrains.Rider"
+    "io.github.shiftey.Desktop"
+    "dev.deedles.Trayscale"
 )
 
 pin_optional_apps_to_favorites() {
@@ -1012,9 +1015,9 @@ pin_optional_apps_to_favorites() {
 
     local changed=false
 
-    for app_id in "${!OPTIONAL_DESKTOP_FILES[@]}"; do
+    for app_id in "${OPTIONAL_PIN_ORDER[@]}"; do
         if flatpak list --app --columns=application 2>/dev/null | grep -qx "$app_id"; then
-            local desktop="${OPTIONAL_DESKTOP_FILES[$app_id]}"
+            local desktop="${app_id}.desktop"
             if ! echo "$current_favs" | grep -q "'${desktop}'"; then
                 # Append before the closing bracket
                 current_favs="${current_favs%]*}, '${desktop}']"
