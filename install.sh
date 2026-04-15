@@ -1403,7 +1403,7 @@ reset_app_grid() {
     # Disable the folders feature entirely
     dconf write /org/gnome/desktop/app-folders/folder-children '@as []' 2>/dev/null || true
 
-    info "App grid reset — all apps will appear in a single alphabetical view."
+    info "App grid reset - all apps will appear in a single alphabetical view."
 }
 
 # ─── Final system cleanup & update ──────────────────────────────────────────────

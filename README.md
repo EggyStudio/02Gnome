@@ -1,26 +1,43 @@
 <h1 align="center" style="text-align:center">GnomeBlueprint</h1>
 <h4 align="center" style="text-align:center">Automate your perfect GNOME desktop in one command.</h4>
-<p align="center" style="text-align:center">Extensions, themes, apps, and settings — all configured interactively.</p>
+<p align="center" style="text-align:center">Extensions, themes, apps, and settings - all configured interactively.</p>
+
+<p align="center" style="text-align:center">
+  <img alt="Platform" src="https://img.shields.io/badge/Platform-Linux-FCC624">
+  <img alt="Desktop" src="https://img.shields.io/badge/Desktop-GNOME-4A86CF">
+  <img alt="Shell" src="https://img.shields.io/badge/Shell-Bash-4EAA25">
+  <img alt="TUI" src="https://img.shields.io/badge/TUI-gum-FF75B5">
+</p>
 
 <p align="center" style="text-align:center">
   <a href="LICENSE"><img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg"></a>
   <a href="https://deepwiki.com/CanTalat-Yakan/GnomeBlueprint"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
 </p>
 
-<p align="center" style="text-align:center">
-  <img src=".github/assets/gnomeblueprint.png" alt="GnomeBlueprint" width="720"/>
-</p>
-
 ## Quick Installation
-
-The fastest way to get started is with our one-line installer:
 
 ```bash
 curl -fsSL https://bit.ly/gnomeblueprint | bash
 ```
 
+![gnomeblueprint.png](.github/assets/gnomeblueprint.png)
 
-## 🔄 What the installer does
+<!-- TOC -->
+
+- [Quick Installation](#quick-installation)
+- [What the Installer Does](#what-the-installer-does)
+- [Essential Applications](#essential-applications-always-installed)
+- [GNOME Shell Extensions](#gnome-shell-extensions-always-installed)
+- [Optional Applications](#optional-applications-interactive-chooser)
+- [Desktop Profile](#desktop-profile)
+- [Laptop Profile](#laptop-profile)
+- [Theming](#theming)
+- [Bloat Removal](#bloat-removal)
+- [Project Structure](#project-structure)
+- [Customisation](#customisation)
+- [License](#license)
+
+## What the installer does
 
 | Step | Description |
 |------|-------------|
@@ -32,7 +49,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | 6 | Installs **essential Flatpak apps** and **GNOME Shell extensions** |
 | 7 | Sets up **Adwaita themes** and asks for **Oled (pure-black) preference** |
 | 8 | Configures **Firefox** (injects `user.js` for privacy, disables AI, sets up GNOME theme) |
-| 9 | Lets you toggle **user preferences** (24h clock, auto-login, blank screen, dark mode, etc.) |
+| 9 | Lets you toggle **user preferences** (24h clock, auto-login, regional formats, etc.) |
 | 10 | Configures **Nautilus, Terminal, and Text Editor** defaults |
 | 11 | Optionally downloads a **wallpaper collection** |
 | 12 | Optionally **removes GNOME bloat** (Boxes, Characters, Weather, LibreOffice, etc.) |
@@ -42,7 +59,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 
 ---
 
-## 📦 Essential Applications (always installed)
+## Essential Applications (always installed)
 
 | Application | Flatpak ID | Description |
 |---|---|---|
@@ -55,7 +72,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 
 ---
 
-## 🧩 GNOME Shell Extensions (always installed)
+## GNOME Shell Extensions (always installed)
 
 | Extension | UUID |
 |---|---|
@@ -70,7 +87,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 
 > Extensions that don't list the current GNOME Shell version are **automatically patched** via `metadata.json` so they load without waiting for an upstream update.
 
-## 🎛️ Optional Applications (interactive chooser)
+## Optional Applications (interactive chooser)
 
 Pick any combination from the TUI menu:
 
@@ -84,7 +101,7 @@ Pick any combination from the TUI menu:
 
 Installed optional apps are automatically **pinned to the dock**.
 
-## 🖥️ Desktop Profile
+## Desktop Profile
 
 - Panel at **bottom**, clock on the **right**
 - Dynamic workspaces
@@ -92,7 +109,7 @@ Installed optional apps are automatically **pinned to the dock**.
 - No touchpad natural scroll / tap-to-click
 - `Super+D` show desktop, `Super+E` files, `Super+T` terminal, `Super+Space` ArcMenu runner
 
-## 💻 Laptop Profile
+## Laptop Profile
 
 - Panel at **top** (default), clock in the **center**
 - Dynamic workspaces
@@ -101,7 +118,7 @@ Installed optional apps are automatically **pinned to the dock**.
 - Tap-to-click, natural scroll, two-finger scrolling
 - Same keyboard shortcuts as Desktop
 
-## 🎨 Theming
+## Theming
 
 - **adw-gtk3-dark** installed via dnf - makes GTK3 apps match GTK4 Adwaita
 - Flatpak overrides applied for `gtk-4.0` and `gtk-3.0` theme access
@@ -109,7 +126,7 @@ Installed optional apps are automatically **pinned to the dock**.
 - Prompts for an **Oled** preference to apply pure-black styling to Rewaita, Firefox, Terminal, and Text Editor
 - Automatically configures **Add Water** and injects `user.js` to theme and lock down Firefox (disabling AI/bloat)
 
-## 🗑️ Bloat Removal
+## Bloat Removal
 
 When confirmed, the installer removes these pre-installed apps (Flatpak + RPM with safety check):
 
@@ -117,7 +134,7 @@ When confirmed, the installer removes these pre-installed apps (Flatpak + RPM wi
 
 RPM removal runs a **dry-run first** - if removing a package would cascade into `gnome-shell`, `gdm`, or `mutter`, it is safely skipped.
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 GnomeBlueprint/
@@ -139,7 +156,7 @@ GnomeBlueprint/
 └── README.md
 ```
 
-## 🔧 Customisation
+## Customisation
 
 ### Adding optional apps
 
@@ -164,6 +181,6 @@ dconf dump / > ~/.dotfiles/gnome-settings/laptop.dconf
 
 Then commit and push so future installs pick them up.
 
-## 📄 License
+## License
 
 This project is licensed under the **GNU General Public License v3.0 or later** - see the [LICENSE](LICENSE) file for details.
