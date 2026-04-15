@@ -715,6 +715,47 @@ pin_optional_apps_to_favorites() {
     fi
 }
 
+# ─── Download wallpaper collection ──────────────────────────────────────────────
+WALLPAPER_REPO="https://github.com/dharmx/walls"
+WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
+
+ask_download_wallpapers() {
+    echo ""
+    local do_download=false
+
+    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
+        if gum confirm "  Download wallpaper collection to ~/Pictures/Wallpapers?"; then
+            do_download=true
+        fi
+    else
+        echo -e "${CYAN}${BOLD}Download wallpaper collection to ~/Pictures/Wallpapers?${NC} [y/N]"
+        local answer
+        read -rp "> " answer
+        case "$answer" in
+            [yY]*) do_download=true ;;
+        esac
+    fi
+
+    if [ "$do_download" = false ]; then
+        info "Skipping wallpaper download."
+        return
+    fi
+
+    if [ -d "$WALLPAPER_DIR/.git" ]; then
+        info "Wallpapers already present - pulling latest..."
+        git -C "$WALLPAPER_DIR" pull --ff-only || warning "Could not update wallpapers."
+    else
+        info "Cloning wallpaper collection..."
+        mkdir -p "$(dirname "$WALLPAPER_DIR")"
+        git clone --depth 1 "$WALLPAPER_REPO" "$WALLPAPER_DIR" \
+            || warning "Failed to clone wallpaper repo."
+    fi
+
+    if [ -d "$WALLPAPER_DIR" ]; then
+        info "Wallpapers available at $WALLPAPER_DIR"
+    fi
+}
+
 # ─── Uninstall GNOME bloatware (Flatpak only) ──────────────────────────────────
 GNOME_BLOAT_FLATPAKS=(
     "org.gnome.Boxes"
@@ -810,17 +851,20 @@ main() {
     # 8. Nautilus configuration (sort, list view, context menu, starred folders)
     configure_nautilus
 
-    # 9. Ask to uninstall GNOME bloat
+    # 9. Download wallpaper collection
+    ask_download_wallpapers
+
+    # 10. Ask to uninstall GNOME bloat
     ask_uninstall_bloat
 
-    # 10. Optional applications (interactive chooser — includes Trayscale)
+    # 11. Optional applications (interactive chooser — includes Trayscale)
     select_and_install_optional_apps
 
-    # 11. Apply profile-specific settings
+    # 12. Apply profile-specific settings
     import_gnome_settings "$profile"
     run_profile "$profile"
 
-    # 12. Pin any installed optional apps to dock favorites
+    # 13. Pin any installed optional apps to dock favorites
     pin_optional_apps_to_favorites
 
     echo ""
