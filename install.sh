@@ -143,6 +143,50 @@ install_flatpak() {
         https://dl.flathub.org/repo/flathub.flatpakrepo || true
 }
 
+# ─── Install Docker ────────────────────────────────────────────────────────────
+install_docker() {
+    if command -v docker &>/dev/null; then
+        info "Docker is already installed."
+        return
+    fi
+
+    info "Installing Docker..."
+
+    if command -v dnf &>/dev/null; then
+        # Remove old/conflicting packages
+        sudo dnf remove -y docker docker-client docker-client-latest \
+            docker-common docker-latest docker-latest-logrotate \
+            docker-logrotate docker-engine podman-docker 2>/dev/null || true
+
+        # Add Docker CE repo
+        sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo \
+            2>/dev/null || sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo \
+            2>/dev/null || { warning "Could not add Docker repo - skipping."; return; }
+
+        sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
+            || { warning "Docker install failed - skipping."; return; }
+
+    elif command -v apt-get &>/dev/null; then
+        curl -fsSL https://get.docker.com | bash \
+            || { warning "Docker install failed - skipping."; return; }
+
+    elif command -v pacman &>/dev/null; then
+        sudo pacman -Sy --noconfirm docker docker-compose \
+            || { warning "Docker install failed - skipping."; return; }
+    else
+        warning "Unsupported package manager - skipping Docker install."
+        return
+    fi
+
+    # Enable and start Docker service
+    sudo systemctl enable --now docker 2>/dev/null || true
+
+    # Add current user to docker group (avoids needing sudo for docker commands)
+    sudo usermod -aG docker "$(whoami)" 2>/dev/null || true
+
+    info "Docker installed. Log out and back in for group membership to take effect."
+}
+
 # ─── Essential Flatpak applications (always installed) ──────────────────────────
 ESSENTIAL_FLATPAK_APPS=(
     "com.github.tchx84.Flatseal"           # Flatseal - manage Flatpak permissions
@@ -1249,6 +1293,7 @@ BANNER
     install_git
     clone_repo
     install_flatpak
+    install_docker
 
     # 5. Apply profile-specific dconf settings first (base layer)
     import_gnome_settings "$profile"
