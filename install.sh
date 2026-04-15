@@ -311,7 +311,6 @@ OPTIONAL_APPS=(
     "Steam|flatpak:com.valvesoftware.Steam"
     "VLC|flatpak:org.videolan.VLC"
     # Creative
-    "DaVinci Resolve|script:davinci_resolve"
     "Blender|flatpak:org.blender.Blender"
     "GIMP|flatpak:org.gimp.GIMP"
     "Unity Hub|flatpak:com.unity.UnityHub"
@@ -351,38 +350,6 @@ install_dotnet() {
     fi
 }
 
-# ─── DaVinci Resolve installer (Fedora helper) ────────────────────────────────
-install_davinci_resolve() {
-    info "Installing DaVinci Resolve via Fedora helper script..."
-
-    local resolve_dir="$HOME/.local/share/davinci-resolve-fedora-helper"
-
-    if [ -d "$resolve_dir/.git" ]; then
-        info "Helper repo already cloned - pulling latest..."
-        git -C "$resolve_dir" pull --ff-only || warning "Could not update helper repo."
-    else
-        info "Cloning DaVinci Resolve Fedora helper..."
-        mkdir -p "$(dirname "$resolve_dir")"
-        git clone "https://github.com/H3rz3n/How-install-DaVinci-Resolve-in-Fedora-Linux" "$resolve_dir" \
-            || { warning "Failed to clone DaVinci Resolve helper repo - skipping."; return; }
-    fi
-
-    # Look for the setup/install script in the repo
-    local setup_script
-    setup_script=$(find "$resolve_dir" -maxdepth 2 -name '*.sh' -type f | head -1)
-
-    if [ -n "$setup_script" ]; then
-        info "Running DaVinci Resolve helper: $(basename "$setup_script")..."
-        chmod +x "$setup_script"
-        bash "$setup_script" \
-            || warning "DaVinci Resolve helper script encountered an error."
-    else
-        warning "No install script found in the helper repo."
-        info "Please follow the instructions at:"
-        info "  https://github.com/H3rz3n/How-install-DaVinci-Resolve-in-Fedora-Linux"
-        info "  Repo cloned to: $resolve_dir"
-    fi
-}
 
 # ─── OpenCode installer (AI coding agent) ──────────────────────────────────────
 install_opencode() {
@@ -463,7 +430,6 @@ select_and_install_optional_apps() {
                     script)
                         case "$install_id" in
                             dotnet) install_dotnet ;;
-                            davinci_resolve) install_davinci_resolve ;;
                             opencode) install_opencode ;;
                             *) warning "Unknown install script: $install_id" ;;
                         esac
