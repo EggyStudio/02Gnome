@@ -19,7 +19,7 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-info()    { echo -e "${GREEN}[INFO]${NC}  $*"; }
+info()    { echo -e "${CYAN}[INFO]${NC}  $*"; }
 warning() { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 error()   { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 
