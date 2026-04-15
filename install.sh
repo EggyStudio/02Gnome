@@ -189,8 +189,8 @@ install_docker() {
 
 # ─── Essential Flatpak applications (always installed) ──────────────────────────
 ESSENTIAL_FLATPAK_APPS=(
-    "com.github.tchx84.Flatseal"           # Flatseal - manage Flatpak permissions
     "com.mattjakeman.ExtensionManager"     # Extension Manager - browse & toggle GNOME extensions
+    "com.github.tchx84.Flatseal"           # Flatseal - manage Flatpak permissions
     "io.github.fabrialberio.pinapp"        # Pins - create custom app shortcuts
     "dev.qwery.AddWater"                   # Add Water - apply Adwaita theme to Firefox
     "io.github.swordpuffin.rewaita"        # Rewaita - bring color to Adwaita
