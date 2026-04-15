@@ -1,6 +1,15 @@
-# GnomeBlueprint
+<h1 align="center" style="text-align:center">GnomeBlueprint</h1>
+<h4 align="center" style="text-align:center">Automate your perfect GNOME desktop in one command.</h4>
+<p align="center" style="text-align:center">Extensions, themes, apps, and settings — all configured interactively.</p>
 
-Welcome to GnomeBlueprint Installer for Linux! This guide will help you automate your perfect GNOME desktop - extensions, themes, apps, and settings - in one command.
+<p align="center" style="text-align:center">
+  <a href="LICENSE"><img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg"></a>
+  <a href="https://deepwiki.com/CanTalat-Yakan/GnomeBlueprint"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
+</p>
+
+<p align="center" style="text-align:center">
+  <img src=".github/assets/gnomeblueprint.png" alt="GnomeBlueprint" width="720"/>
+</p>
 
 ## Quick Installation
 
@@ -10,7 +19,6 @@ The fastest way to get started is with our one-line installer:
 curl -fsSL https://bit.ly/gnomeblueprint | bash
 ```
 
-![gnomeblueprint.png](.github/assets/gnomeblueprint.png)
 
 ## 🔄 What the installer does
 

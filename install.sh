@@ -588,6 +588,7 @@ ask_user_preferences() {
         "Blank screen: Never (display stays on)"
         "Disable automatic screen lock"
         "Start with Bluetooth off"
+        "Set regional formats from timezone"
     )
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
@@ -627,8 +628,6 @@ ask_user_preferences() {
             "Use 24-hour time format")
                 info "Setting 24-hour time format..."
                 gsettings set org.gnome.desktop.interface clock-format '24h' 2>/dev/null || true
-                # Also set locale-based 24h via dconf
-                dconf write /system/locale/region "'en_GB.UTF-8'" 2>/dev/null || true
                 ;;
             "Hide weekday in clock")
                 info "Hiding weekday in clock..."
@@ -662,6 +661,39 @@ ask_user_preferences() {
                 info "Disabling Bluetooth on startup..."
                 sudo systemctl disable bluetooth 2>/dev/null || true
                 sudo rfkill block bluetooth 2>/dev/null || true
+                ;;
+            "Set regional formats from timezone")
+                info "Detecting timezone and setting regional formats..."
+                local tz=""
+                tz=$(timedatectl show --property=Timezone --value 2>/dev/null) || true
+                if [ -z "$tz" ]; then
+                    tz=$(cat /etc/timezone 2>/dev/null) || true
+                fi
+                if [ -z "$tz" ]; then
+                    warning "Could not detect timezone - skipping regional format."
+                else
+                    # Look up 2-letter country code from zone.tab
+                    local cc=""
+                    cc=$(awk -v tz="$tz" '$3 == tz { print $1; exit }' /usr/share/zoneinfo/zone.tab 2>/dev/null) || true
+                    if [ -z "$cc" ]; then
+                        warning "Could not determine country for timezone $tz - skipping."
+                    else
+                        # Find a UTF-8 locale matching _CC (e.g. DE → de_DE.UTF-8)
+                        local region_locale=""
+                        region_locale=$(locale -a 2>/dev/null \
+                            | grep -i "_${cc}\." \
+                            | grep -i 'utf' \
+                            | head -1) || true
+                        if [ -n "$region_locale" ]; then
+                            # Normalise to xx_CC.UTF-8 form
+                            region_locale=$(echo "$region_locale" | sed 's/utf8/UTF-8/; s/\.utf-8/.UTF-8/i')
+                            dconf write /system/locale/region "'$region_locale'" 2>/dev/null || true
+                            info "Regional format set to $region_locale (timezone: $tz, country: $cc)."
+                        else
+                            warning "No UTF-8 locale found for country $cc - skipping."
+                        fi
+                    fi
+                fi
                 ;;
         esac
     done
