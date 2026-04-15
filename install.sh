@@ -363,7 +363,7 @@ select_and_install_optional_apps() {
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
         local raw
         raw=$(gum choose --no-limit \
-            --header.foreground="212" \
+            --header.foreground="12" --header.italic=false \
             --header "  Select optional apps (↑/↓ move, Space select, Enter confirm):" \
             "${labels[@]}") || true
 
@@ -444,7 +444,7 @@ select_profile() {
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
         profile=$(gum choose \
-            --header.foreground="212" \
+            --header.foreground="12" --header.italic=false \
             --header "  Select a GnomeBlueprint profile:" \
             "Desktop" \
             "Laptop" \
@@ -528,7 +528,7 @@ ask_user_preferences() {
         local raw
         raw=$(gum choose --no-limit \
             --selected="$selected_default" \
-            --header.foreground="212" \
+            --header.foreground="12" --header.italic=false \
             --header "  Select preferences (↑/↓ move, Space toggle, Enter confirm):" \
             "${pref_labels[@]}") || true
         if [ -n "$raw" ]; then
