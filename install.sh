@@ -311,6 +311,7 @@ OPTIONAL_APPS=(
     "Steam|flatpak:com.valvesoftware.Steam"
     "VLC Media Player|flatpak:org.videolan.VLC"
     # Creative
+    "DaVinci Resolve|script:davinci_resolve"
     "Blender|flatpak:org.blender.Blender"
     "GIMP|flatpak:org.gimp.GIMP"
     "Unity Hub|flatpak:com.unity.UnityHub"
@@ -347,6 +348,39 @@ install_dotnet() {
         warning "Add this to your shell profile to use dotnet:"
         warning "  export DOTNET_ROOT=\"\$HOME/.dotnet\""
         warning "  export PATH=\"\$HOME/.dotnet:\$PATH\""
+    fi
+}
+
+# ─── DaVinci Resolve installer (Fedora helper) ────────────────────────────────
+install_davinci_resolve() {
+    info "Installing DaVinci Resolve via Fedora helper script..."
+
+    local resolve_dir="$HOME/.local/share/davinci-resolve-fedora-helper"
+
+    if [ -d "$resolve_dir/.git" ]; then
+        info "Helper repo already cloned - pulling latest..."
+        git -C "$resolve_dir" pull --ff-only || warning "Could not update helper repo."
+    else
+        info "Cloning DaVinci Resolve Fedora helper..."
+        mkdir -p "$(dirname "$resolve_dir")"
+        git clone "https://github.com/H3rz3n/How-install-DaVinci-Resolve-in-Fedora-Linux" "$resolve_dir" \
+            || { warning "Failed to clone DaVinci Resolve helper repo - skipping."; return; }
+    fi
+
+    # Look for the setup/install script in the repo
+    local setup_script
+    setup_script=$(find "$resolve_dir" -maxdepth 2 -name '*.sh' -type f | head -1)
+
+    if [ -n "$setup_script" ]; then
+        info "Running DaVinci Resolve helper: $(basename "$setup_script")..."
+        chmod +x "$setup_script"
+        bash "$setup_script" \
+            || warning "DaVinci Resolve helper script encountered an error."
+    else
+        warning "No install script found in the helper repo."
+        info "Please follow the instructions at:"
+        info "  https://github.com/H3rz3n/How-install-DaVinci-Resolve-in-Fedora-Linux"
+        info "  Repo cloned to: $resolve_dir"
     fi
 }
 
@@ -429,6 +463,7 @@ select_and_install_optional_apps() {
                     script)
                         case "$install_id" in
                             dotnet) install_dotnet ;;
+                            davinci_resolve) install_davinci_resolve ;;
                             opencode) install_opencode ;;
                             *) warning "Unknown install script: $install_id" ;;
                         esac
@@ -981,36 +1016,37 @@ main() {
     clone_repo
     install_flatpak
 
-    # 5. Essential Flatpaks (includes Mission Center) & GNOME extensions
+    # 5. Apply profile-specific dconf settings first (base layer)
+    import_gnome_settings "$profile"
+    run_profile "$profile"
+
+    # 6. Essential Flatpaks (includes Mission Center) & GNOME extensions
     install_essential_flatpaks
     install_gnome_extensions
     restart_gnome_shell
 
-    # 6. Adwaita theme setup (adw-gtk3 + Flatpak overrides)
+    # 7. Adwaita theme setup (adw-gtk3 + Flatpak overrides)
     setup_themes
 
-    # 7. Configure Add Water & Firefox
+    # 8. Configure Add Water & Firefox
     configure_addwater
     configure_firefox
 
-    # 8. User preferences (24h clock, auto-login, blank screen, battery)
+    # 9. User preferences override dconf base (24h clock, auto-login, blank screen, battery)
     ask_user_preferences
 
-    # 9. Nautilus configuration (sort, list view, context menu, starred folders)
+    # 10. Nautilus configuration (sort, list view, context menu, starred folders)
     configure_nautilus
 
-    # 10. Download wallpaper collection
+    # 11. Download wallpaper collection
     ask_download_wallpapers
 
-    # 11. Ask to uninstall GNOME bloat
+    # 12. Ask to uninstall GNOME bloat
     ask_uninstall_bloat
 
-    # 12. Optional applications (interactive chooser)
+    # 13. Optional applications (interactive chooser)
     select_and_install_optional_apps
 
-    # 13. Apply profile-specific settings
-    import_gnome_settings "$profile"
-    run_profile "$profile"
 
     # 14. Pin any installed optional apps to dock favorites
     pin_optional_apps_to_favorites

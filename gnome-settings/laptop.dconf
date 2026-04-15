@@ -75,10 +75,6 @@ sleep-inactive-battery-type='suspend'
 lid-close-battery-action='suspend'
 lid-close-ac-action='suspend'
 ambient-enabled=true
-idle-dim=true
-
-[org/gnome/desktop/session]
-idle-delay=uint32 300
 
 [org/gnome/desktop/peripherals/touchpad]
 tap-to-click=true
