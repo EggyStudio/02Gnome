@@ -896,6 +896,7 @@ configure_firefox() {
     local search_roots=(
         "$HOME/.mozilla/firefox"
         "$HOME/.var/app/org.mozilla.firefox/.mozilla/firefox"
+        "$HOME/.var/app/org.mozilla.firefox/config/mozilla/firefox"
         "$HOME/snap/firefox/common/.mozilla/firefox"
     )
 
@@ -904,28 +905,30 @@ configure_firefox() {
 
         # 1. Parse profiles.ini for declared profile paths
         if [ -f "$root/profiles.ini" ]; then
-            while IFS='=' read -r key value; do
-                if [ "$key" = "Path" ] && [ -n "$value" ]; then
-                    local pdir
-                    # Handle relative and absolute paths
-                    if [[ "$value" = /* ]]; then
-                        pdir="$value"
-                    else
-                        pdir="$root/$value"
-                    fi
-                    if [ -d "$pdir" ]; then
-                        profile_dirs+=("$pdir")
-                    fi
-                fi
+            while IFS= read -r line; do
+                # Strip carriage returns and leading/trailing whitespace
+                line="${line%%$'\r'}"
+                line="${line#"${line%%[![:space:]]*}"}"
+                case "$line" in
+                    Path=*)
+                        local value="${line#Path=}"
+                        local pdir
+                        if [[ "$value" = /* ]]; then
+                            pdir="$value"
+                        else
+                            pdir="$root/$value"
+                        fi
+                        [ -d "$pdir" ] && profile_dirs+=("$pdir")
+                        ;;
+                esac
             done < "$root/profiles.ini"
         fi
 
-        # 2. Fallback: find directories containing prefs.js (active profiles)
-        if [ ${#profile_dirs[@]} -eq 0 ]; then
-            while IFS= read -r -d '' pjs; do
-                profile_dirs+=("$(dirname "$pjs")")
-            done < <(find "$root" -maxdepth 2 -name 'prefs.js' -type f -print0 2>/dev/null)
-        fi
+        # 2. Always also scan for directories containing prefs.js (catches profiles
+        #    not listed in profiles.ini or when profiles.ini is missing/malformed)
+        while IFS= read -r -d '' pjs; do
+            profile_dirs+=("$(dirname "$pjs")")
+        done < <(find "$root" -maxdepth 2 -name 'prefs.js' -type f -print0 2>/dev/null)
     done
 
     # Deduplicate
