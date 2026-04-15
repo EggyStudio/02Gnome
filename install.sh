@@ -309,7 +309,7 @@ OPTIONAL_APPS=(
     "Discord|flatpak:com.discordapp.Discord"
     "Signal|flatpak:org.signal.Signal"
     "Steam|flatpak:com.valvesoftware.Steam"
-    "VLC Media Player|flatpak:org.videolan.VLC"
+    "VLC|flatpak:org.videolan.VLC"
     # Creative
     "DaVinci Resolve|script:davinci_resolve"
     "Blender|flatpak:org.blender.Blender"
