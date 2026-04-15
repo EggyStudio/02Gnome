@@ -642,6 +642,32 @@ declare -A BLOAT_DNF_PACKAGES=(
     ["Weather"]="gnome-weather"
 )
 
+# ─── Safe RPM removal (prevents breaking the desktop environment) ──────────────
+# Performs a dry-run before removing any package.  If the removal would also
+# pull gnome-shell, gdm, or mutter it is skipped entirely.
+PROTECTED_PACKAGES="gnome-shell|gdm|mutter|gnome-session|gnome-settings-daemon"
+
+safe_dnf_remove() {
+    local pkg="$1"
+    local label="$2"
+
+    if ! rpm -q "$pkg" &>/dev/null; then
+        return    # not installed
+    fi
+
+    # Dry-run: check what dnf *would* remove
+    local would_remove
+    would_remove=$(dnf remove --assumeno "$pkg" 2>/dev/null | grep -E '^ ' || true)
+
+    if echo "$would_remove" | grep -qEi "$PROTECTED_PACKAGES"; then
+        warning "Skipping $label ($pkg) - removing it would also remove core desktop packages."
+        return
+    fi
+
+    info "Removing system package: $pkg..."
+    sudo dnf remove -y --noautoremove "$pkg" 2>/dev/null || warning "Failed to remove $pkg."
+}
+
 ask_uninstall_bloat() {
     echo ""
     local do_remove=false
@@ -670,19 +696,16 @@ ask_uninstall_bloat() {
         local app_id="${entry%%|*}"
         local label="${entry##*|}"
 
-        # Try removing as Flatpak
+        # Try removing as Flatpak (always safe)
         if flatpak list --app --columns=application 2>/dev/null | grep -qx "$app_id"; then
             info "Removing Flatpak: $label..."
             flatpak uninstall -y "$app_id" 2>/dev/null || warning "Failed to remove Flatpak $label."
         fi
 
-        # Also try removing the RPM/system package
+        # Try removing the RPM/system package (with safety check)
         local pkg="${BLOAT_DNF_PACKAGES[$label]:-}"
         if [ -n "$pkg" ] && command -v dnf &>/dev/null; then
-            if rpm -q "$pkg" &>/dev/null; then
-                info "Removing system package: $pkg..."
-                sudo dnf remove -y "$pkg" 2>/dev/null || warning "Failed to remove $pkg."
-            fi
+            safe_dnf_remove "$pkg" "$label"
         fi
     done
 
