@@ -900,12 +900,46 @@ configure_firefox() {
     )
 
     for root in "${search_roots[@]}"; do
-        if [ -d "$root" ]; then
-            while IFS= read -r -d '' dir; do
-                profile_dirs+=("$dir")
-            done < <(find "$root" -maxdepth 1 -name '*.default*' -type d -print0 2>/dev/null)
+        [ -d "$root" ] || continue
+
+        # 1. Parse profiles.ini for declared profile paths
+        if [ -f "$root/profiles.ini" ]; then
+            while IFS='=' read -r key value; do
+                if [ "$key" = "Path" ] && [ -n "$value" ]; then
+                    local pdir
+                    # Handle relative and absolute paths
+                    if [[ "$value" = /* ]]; then
+                        pdir="$value"
+                    else
+                        pdir="$root/$value"
+                    fi
+                    if [ -d "$pdir" ]; then
+                        profile_dirs+=("$pdir")
+                    fi
+                fi
+            done < "$root/profiles.ini"
+        fi
+
+        # 2. Fallback: find directories containing prefs.js (active profiles)
+        if [ ${#profile_dirs[@]} -eq 0 ]; then
+            while IFS= read -r -d '' pjs; do
+                profile_dirs+=("$(dirname "$pjs")")
+            done < <(find "$root" -maxdepth 2 -name 'prefs.js' -type f -print0 2>/dev/null)
         fi
     done
+
+    # Deduplicate
+    if [ ${#profile_dirs[@]} -gt 0 ]; then
+        local -A seen=()
+        local unique=()
+        for d in "${profile_dirs[@]}"; do
+            if [ -z "${seen[$d]+x}" ]; then
+                seen[$d]=1
+                unique+=("$d")
+            fi
+        done
+        profile_dirs=("${unique[@]}")
+    fi
 
     if [ ${#profile_dirs[@]} -eq 0 ]; then
         warning "No Firefox profiles found - skipping Firefox configuration."
