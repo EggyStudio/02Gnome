@@ -92,7 +92,7 @@ speed=0.0
 
 [org/gnome/shell/extensions/just-perfection]
 panel-position=0
-clock-menu-position=1
+clock-menu-position=0
 events-button=false
 search=false
 startup-status=0
