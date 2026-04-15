@@ -52,6 +52,18 @@ binding='<Super>t'
 command='gnome-terminal'
 name='Terminal'
 
+[org/gnome/nautilus/preferences]
+sort-directories-first=true
+show-create-link=true
+show-delete-permanently=true
+
+[org/gnome/nautilus/list-view]
+use-tree-view=true
+default-zoom-level='small'
+
+[org/gtk/gtk4/settings/file-chooser]
+sort-directories-first=true
+
 [org/gnome/desktop/background]
 picture-options='zoom'
 

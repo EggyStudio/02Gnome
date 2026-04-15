@@ -521,10 +521,15 @@ ask_user_preferences() {
     )
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
+        # Build comma-separated string of all labels for pre-selection
+        local selected_default
+        selected_default=$(IFS=,; echo "${pref_labels[*]}")
+
         local raw
         raw=$(gum choose --no-limit \
+            --selected="$selected_default" \
             --header.foreground="212" \
-            --header "  Select preferences (↑/↓ move, Space select, Enter confirm):" \
+            --header "  Select preferences (↑/↓ move, Space toggle, Enter confirm):" \
             "${pref_labels[@]}") || true
         if [ -n "$raw" ]; then
             while IFS= read -r line; do
@@ -596,6 +601,48 @@ ask_user_preferences() {
     if [ ${#prefs[@]} -eq 0 ]; then
         info "No preferences selected - using defaults."
     fi
+}
+
+# ─── Nautilus (Files) configuration ─────────────────────────────────────────────
+configure_nautilus() {
+    info "Configuring Nautilus (Files)..."
+
+    # Sort folders before files
+    gsettings set org.gnome.nautilus.preferences sort-directories-first true 2>/dev/null || true
+    # Show "Create Link" in context menu
+    gsettings set org.gnome.nautilus.preferences show-create-link true 2>/dev/null || true
+    # Show "Delete Permanently" in context menu
+    gsettings set org.gnome.nautilus.preferences show-delete-permanently true 2>/dev/null || true
+    # Expand folders in list view (tree view)
+    gsettings set org.gnome.nautilus.list-view use-tree-view true 2>/dev/null || true
+    # List view smallest icon size
+    gsettings set org.gnome.nautilus.list-view default-zoom-level 'small' 2>/dev/null || true
+
+    # Also set GTK file chooser to sort folders first
+    gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true 2>/dev/null || true
+
+    # Star useful folders
+    local current_user
+    current_user=$(whoami)
+    local starred_folders=(
+        "/home/${current_user}/.var/app"
+        "/home/${current_user}/.local/share/gnome-shell/extensions"
+    )
+
+    for folder in "${starred_folders[@]}"; do
+        if [ -d "$folder" ]; then
+            gio set -t stringv "$folder" metadata::xdg-tags "starred" 2>/dev/null \
+                || warning "Could not star $folder"
+            info "Starred: $folder"
+        else
+            mkdir -p "$folder" 2>/dev/null || true
+            gio set -t stringv "$folder" metadata::xdg-tags "starred" 2>/dev/null \
+                || warning "Could not star $folder"
+            info "Created & starred: $folder"
+        fi
+    done
+
+    info "Nautilus configuration complete."
 }
 
 # ─── Uninstall GNOME bloatware (Flatpak only) ──────────────────────────────────
@@ -687,13 +734,16 @@ main() {
     # 6. User preferences (24h clock, auto-login, blank screen, battery)
     ask_user_preferences
 
-    # 7. Ask to uninstall GNOME bloat
+    # 7. Nautilus configuration (sort, context menu, starred folders)
+    configure_nautilus
+
+    # 8. Ask to uninstall GNOME bloat
     ask_uninstall_bloat
 
-    # 8. Optional applications (interactive chooser — includes Trayscale)
+    # 9. Optional applications (interactive chooser — includes Trayscale)
     select_and_install_optional_apps
 
-    # 9. Apply profile-specific settings
+    # 10. Apply profile-specific settings
     import_gnome_settings "$profile"
     run_profile "$profile"
 
