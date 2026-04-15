@@ -769,9 +769,9 @@ install_rewaita_themes() {
 
     # Copy bundled themes
     local src="$DOTFILES_DIR"
-    cp -f "$src/A Default Dark Theme.css"  "$dark_dir/"  2>/dev/null || warning "Could not copy default dark theme."
-    cp -f "$src/A OLED Dark Theme.css"     "$dark_dir/"  2>/dev/null || warning "Could not copy OLED dark theme."
-    cp -f "$src/A Default Light Theme.css" "$light_dir/" 2>/dev/null || warning "Could not copy default light theme."
+    cp -f "$src/themes/dark/A Default Dark Theme.css"  "$dark_dir/"  2>/dev/null || warning "Could not copy default dark theme."
+    cp -f "$src/themes/dark/A Oled Dark Theme.css"     "$dark_dir/"  2>/dev/null || warning "Could not copy Oled dark theme."
+    cp -f "$src/themes/light/A Default Light Theme.css" "$light_dir/" 2>/dev/null || warning "Could not copy default light theme."
 
     info "Theme files installed into Rewaita data directory."
 
@@ -808,9 +808,9 @@ with open(path, 'w') as f:
     info "Rewaita configured with default dark and light themes."
 }
 
-# ─── Ask OLED / pure-black preference ──────────────────────────────────────────
-# If the user wants pure black (OLED) mode:
-#   • Switch Rewaita dark theme to the OLED variant
+# ─── Ask Oled / pure-black preference ──────────────────────────────────────────
+# If the user wants pure black (Oled) mode:
+#   • Switch Rewaita dark theme to the Oled variant
 #   • Enable Add Water "True Black" (oled-black) for Firefox
 #   • Set GNOME Text Editor appearance to Classic Dark
 #   • Set terminal (Ptyxis) palette to XTerm
@@ -818,11 +818,11 @@ ask_oled_preference() {
     echo ""
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if gum confirm --default=no "  Use pure-black OLED dark theme?"; then
+        if gum confirm --default=no "  Use pure-black Oled dark theme?"; then
             USE_OLED=true
         fi
     else
-        echo -e "${CYAN}${BOLD}Use pure-black OLED dark theme?${NC} [y/N]"
+        echo -e "${CYAN}${BOLD}Use pure-black Oled dark theme?${NC} [y/N]"
         local answer
         read -rp "> " answer
         case "$answer" in
@@ -850,9 +850,9 @@ ask_oled_preference() {
         return
     fi
 
-    info "Applying OLED / pure-black settings..."
+    info "Applying Oled / pure-black settings..."
 
-    # 1. Switch Rewaita dark theme to OLED variant
+    # 1. Switch Rewaita dark theme to Oled variant
     local prefs_file="$REWAITA_DATA_DIR/prefs.json"
     python3 -c "
 import json
@@ -862,11 +862,11 @@ try:
         prefs = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
     prefs = {}
-prefs['dark-theme'] = 'A OLED Dark Theme.css'
+prefs['dark-theme'] = 'A Oled Dark Theme.css'
 with open(path, 'w') as f:
     json.dump(prefs, f, indent=4)
-" 2>/dev/null || warning "Could not update Rewaita prefs for OLED."
-    info "Rewaita dark theme set to OLED variant."
+" 2>/dev/null || warning "Could not update Rewaita prefs for Oled."
+    info "Rewaita dark theme set to Oled variant."
 
     # 2. Enable Add Water "True Black" for Firefox
     #    Add Water is a Flatpak - use flatpak run to set gsettings inside the sandbox
@@ -911,7 +911,7 @@ with open(path, 'w') as f:
     # Also set Ptyxis interface style to dark
     gsettings set org.gnome.Ptyxis interface-style 'dark' 2>/dev/null || true
 
-    info "OLED / pure-black settings applied."
+    info "Oled / pure-black settings applied."
 }
 
 # ─── Configure Add Water (Adwaita theme for Firefox) ───────────────────────────
@@ -1005,7 +1005,7 @@ configure_firefox() {
         # Copy user.js from repo
         cp -f "$src_user_js" "$target"
 
-        # Toggle OLED setting based on user choice
+        # Toggle Oled setting based on user choice
         if [ "$USE_OLED" = true ]; then
             sed -i 's/user_pref("gnomeTheme.oledBlack", false);/user_pref("gnomeTheme.oledBlack", true);/' "$target"
         fi
@@ -1307,10 +1307,10 @@ BANNER
     # 7. Adwaita theme setup (adw-gtk3 + Flatpak overrides)
     setup_themes
 
-    # 8. Install Rewaita custom themes (dark, OLED dark, light)
+    # 8. Install Rewaita custom themes (dark, Oled dark, light)
     install_rewaita_themes
 
-    # 9. Ask OLED preference (pure-black dark theme, Add Water, Text Editor, Terminal)
+    # 9. Ask Oled preference (pure-black dark theme, Add Water, Text Editor, Terminal)
     ask_oled_preference
 
     # 10. Configure Add Water & Firefox

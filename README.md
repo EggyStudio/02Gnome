@@ -10,6 +10,7 @@
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/CanTalat-Yakan/GnomeBlueprint/main/install.sh)
+bash <(curl -fsSL https://shorturl.at/MQkQG)
 ```
 
 The interactive installer walks you through every step using [gum](https://github.com/charmbracelet/gum) (with a plain-text fallback).
