@@ -670,8 +670,89 @@ setup_themes() {
     flatpak override --user --filesystem=xdg-config/gtk-4.0 2>/dev/null || true
     flatpak override --user --filesystem=xdg-config/gtk-3.0 2>/dev/null || true
 
-    info "Themes applied. Open Add Water to apply Adwaita theme to Firefox."
+    info "Themes applied."
     info "Open Rewaita to browse and apply Adwaita icon theme variants."
+}
+
+# ─── Configure Add Water (Adwaita theme for Firefox) ───────────────────────────
+configure_addwater() {
+    info "Configuring Add Water for Firefox..."
+
+    # Pre-configure Add Water via dconf so the theme is enabled with preferred options.
+    # Add Water still needs to run once to actually install the CSS into the Firefox profile.
+    dconf write /dev/qwery/AddWater/Firefox/theme-enabled true 2>/dev/null || true
+    dconf write /dev/qwery/AddWater/Firefox/hide-single-tab true 2>/dev/null || true
+    dconf write /dev/qwery/AddWater/Firefox/normal-width-tabs true 2>/dev/null || true
+    dconf write /dev/qwery/AddWater/background-update true 2>/dev/null || true
+
+    info "Add Water preferences set. Open Add Water once to apply the theme to Firefox."
+}
+
+# ─── Configure Firefox preferences ─────────────────────────────────────────────
+configure_firefox() {
+    info "Configuring Firefox preferences..."
+
+    # Find all Firefox profile directories (supports system, Flatpak, and Snap installs)
+    local profile_dirs=()
+    local search_roots=(
+        "$HOME/.mozilla/firefox"
+        "$HOME/.var/app/org.mozilla.firefox/.mozilla/firefox"
+        "$HOME/snap/firefox/common/.mozilla/firefox"
+    )
+
+    for root in "${search_roots[@]}"; do
+        if [ -d "$root" ]; then
+            while IFS= read -r -d '' dir; do
+                profile_dirs+=("$dir")
+            done < <(find "$root" -maxdepth 1 -name '*.default*' -type d -print0 2>/dev/null)
+        fi
+    done
+
+    if [ ${#profile_dirs[@]} -eq 0 ]; then
+        warning "No Firefox profiles found - skipping Firefox configuration."
+        warning "Launch Firefox once, close it, then re-run the installer to configure it."
+        return
+    fi
+
+    # user.js preferences to inject
+    local user_js
+    read -r -d '' user_js << 'USERJS' || true
+// ─── GnomeBlueprint Firefox preferences ───────────────────────────────────────
+// Bookmarks Toolbar: never show
+user_pref("browser.toolbars.bookmarks.visibility", "never");
+
+// Disable AI / ML features
+user_pref("browser.ml.chat.enabled", false);
+user_pref("browser.ml.chat.sidebar", false);
+user_pref("browser.ml.enable", false);
+
+// Disable Mozilla VPN promos
+user_pref("browser.vpn_promo.enabled", false);
+user_pref("browser.contentblocking.report.vpn_sub_message.enabled", false);
+
+// Disable Firefox accounts toolbar button (sync)
+user_pref("identity.fxaccounts.toolbar.enabled", false);
+
+// Disable new sidebar
+user_pref("sidebar.revamp", false);
+user_pref("sidebar.verticalTabs", false);
+USERJS
+
+    for profile in "${profile_dirs[@]}"; do
+        local target="$profile/user.js"
+
+        # If user.js already exists, only append if our marker isn't present
+        if [ -f "$target" ] && grep -q "GnomeBlueprint Firefox preferences" "$target" 2>/dev/null; then
+            info "Firefox profile already configured: $(basename "$profile")"
+            continue
+        fi
+
+        echo "" >> "$target"
+        echo "$user_js" >> "$target"
+        info "Configured Firefox profile: $(basename "$profile")"
+    done
+
+    info "Firefox preferences applied (takes effect on next Firefox launch)."
 }
 
 # ─── Pin installed optional apps to favorites ──────────────────────────────────
@@ -886,26 +967,30 @@ main() {
     # 6. Adwaita theme setup (adw-gtk3 + Flatpak overrides)
     setup_themes
 
-    # 7. User preferences (24h clock, auto-login, blank screen, battery)
+    # 7. Configure Add Water & Firefox
+    configure_addwater
+    configure_firefox
+
+    # 8. User preferences (24h clock, auto-login, blank screen, battery)
     ask_user_preferences
 
-    # 8. Nautilus configuration (sort, list view, context menu, starred folders)
+    # 9. Nautilus configuration (sort, list view, context menu, starred folders)
     configure_nautilus
 
-    # 9. Download wallpaper collection
+    # 10. Download wallpaper collection
     ask_download_wallpapers
 
-    # 10. Ask to uninstall GNOME bloat
+    # 11. Ask to uninstall GNOME bloat
     ask_uninstall_bloat
 
-    # 11. Optional applications (interactive chooser - includes Trayscale)
+    # 12. Optional applications (interactive chooser)
     select_and_install_optional_apps
 
-    # 12. Apply profile-specific settings
+    # 13. Apply profile-specific settings
     import_gnome_settings "$profile"
     run_profile "$profile"
 
-    # 13. Pin any installed optional apps to dock favorites
+    # 14. Pin any installed optional apps to dock favorites
     pin_optional_apps_to_favorites
 
     echo ""
