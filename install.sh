@@ -418,7 +418,7 @@ select_and_install_optional_apps() {
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
         local raw
-        raw=$(gum choose --no-limit \
+        raw=$(gum choose --no-limit --height=${#labels[@]} \
             --header.foreground="12" --header.italic=false \
             --header "  Select optional apps (↑/↓ move, Space select, Enter confirm):" \
             "${labels[@]}") || true
