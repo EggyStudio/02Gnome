@@ -598,75 +598,27 @@ ask_user_preferences() {
     fi
 }
 
-# ─── Uninstall GNOME bloatware ─────────────────────────────────────────────────
-GNOME_BLOAT_APPS=(
-    "org.gnome.Boxes|Boxes"
-    "org.gnome.Characters|Characters"
-    "org.gnome.Connections|Connections"
-    "org.gnome.Contacts|Contacts"
-    "org.gnome.Extensions|Extensions"
-    "org.gnome.DiskUtility|Disks"
-    "org.gnome.baobab|Disk Usage Analyser"
-    "org.gnome.SimpleScan|Document Scanner"
-    "org.fedoraproject.MediaWriter|Fedora Media Writer"
-    "org.gnome.Yelp|Help"
-    "org.libreoffice.LibreOffice.Calc|LibreOffice Calc"
-    "org.libreoffice.LibreOffice.Impress|LibreOffice Impress"
-    "org.libreoffice.LibreOffice.Writer|LibreOffice Writer"
-    "org.gnome.Maps|Maps"
-    "org.freedesktop.MalcontentControl|Parental Controls"
-    "org.gnome.SystemMonitor|System Monitor"
-    "org.gnome.Tour|Tour"
-    "org.gnome.Weather|Weather"
+# ─── Uninstall GNOME bloatware (Flatpak only) ──────────────────────────────────
+GNOME_BLOAT_FLATPAKS=(
+    "org.gnome.Boxes"
+    "org.gnome.Characters"
+    "org.gnome.Connections"
+    "org.gnome.Contacts"
+    "org.gnome.Extensions"
+    "org.gnome.DiskUtility"
+    "org.gnome.baobab"
+    "org.gnome.SimpleScan"
+    "org.fedoraproject.MediaWriter"
+    "org.gnome.Yelp"
+    "org.libreoffice.LibreOffice.Calc"
+    "org.libreoffice.LibreOffice.Impress"
+    "org.libreoffice.LibreOffice.Writer"
+    "org.gnome.Maps"
+    "org.freedesktop.MalcontentControl"
+    "org.gnome.SystemMonitor"
+    "org.gnome.Tour"
+    "org.gnome.Weather"
 )
-
-# Map display names → dnf package names for RPM-based removal
-declare -A BLOAT_DNF_PACKAGES=(
-    ["Boxes"]="gnome-boxes"
-    ["Characters"]="gnome-characters"
-    ["Connections"]="gnome-connections"
-    ["Contacts"]="gnome-contacts"
-    ["Extensions"]="gnome-extensions-app"
-    ["Disks"]="gnome-disk-utility"
-    ["Disk Usage Analyser"]="baobab"
-    ["Document Scanner"]="simple-scan"
-    ["Fedora Media Writer"]="mediawriter"
-    ["Help"]="yelp"
-    ["LibreOffice Calc"]="libreoffice-calc"
-    ["LibreOffice Impress"]="libreoffice-impress"
-    ["LibreOffice Writer"]="libreoffice-writer"
-    ["Maps"]="gnome-maps"
-    ["Parental Controls"]="malcontent"
-    ["System Monitor"]="gnome-system-monitor"
-    ["Tour"]="gnome-tour"
-    ["Weather"]="gnome-weather"
-)
-
-# ─── Safe RPM removal (prevents breaking the desktop environment) ──────────────
-# Performs a dry-run before removing any package.  If the removal would also
-# pull gnome-shell, gdm, or mutter it is skipped entirely.
-PROTECTED_PACKAGES="gnome-shell|gdm|mutter|gnome-session|gnome-settings-daemon"
-
-safe_dnf_remove() {
-    local pkg="$1"
-    local label="$2"
-
-    if ! rpm -q "$pkg" &>/dev/null; then
-        return    # not installed
-    fi
-
-    # Dry-run: check what dnf *would* remove
-    local would_remove
-    would_remove=$(dnf remove --assumeno "$pkg" 2>/dev/null | grep -E '^ ' || true)
-
-    if echo "$would_remove" | grep -qEi "$PROTECTED_PACKAGES"; then
-        warning "Skipping $label ($pkg) - removing it would also remove core desktop packages."
-        return
-    fi
-
-    info "Removing system package: $pkg..."
-    sudo dnf remove -y --noautoremove "$pkg" 2>/dev/null || warning "Failed to remove $pkg."
-}
 
 ask_uninstall_bloat() {
     echo ""
@@ -690,22 +642,12 @@ ask_uninstall_bloat() {
         return
     fi
 
-    info "Removing all GNOME bloat applications..."
+    info "Removing GNOME bloat Flatpaks..."
 
-    for entry in "${GNOME_BLOAT_APPS[@]}"; do
-        local app_id="${entry%%|*}"
-        local label="${entry##*|}"
-
-        # Try removing as Flatpak (always safe)
+    for app_id in "${GNOME_BLOAT_FLATPAKS[@]}"; do
         if flatpak list --app --columns=application 2>/dev/null | grep -qx "$app_id"; then
-            info "Removing Flatpak: $label..."
-            flatpak uninstall -y "$app_id" 2>/dev/null || warning "Failed to remove Flatpak $label."
-        fi
-
-        # Try removing the RPM/system package (with safety check)
-        local pkg="${BLOAT_DNF_PACKAGES[$label]:-}"
-        if [ -n "$pkg" ] && command -v dnf &>/dev/null; then
-            safe_dnf_remove "$pkg" "$label"
+            info "Removing $app_id..."
+            flatpak uninstall -y "$app_id" 2>/dev/null || warning "Failed to remove $app_id."
         fi
     done
 
