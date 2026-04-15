@@ -57,8 +57,6 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | 14 | **Pins installed apps** to the dock (Firefox first, Files/Terminal/Software last) |
 | 15 | **Resets the app grid** to a single flat alphabetical layout |
 
----
-
 ## Essential Applications (always installed)
 
 | Application | Flatpak ID | Description |
@@ -69,8 +67,6 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | Add Water | `dev.qwery.AddWater` | Apply Adwaita theme to Firefox |
 | Rewaita | `io.github.swordpuffin.rewaita` | Bring color to Adwaita |
 | Mission Center | `io.missioncenter.MissionCenter` | System resource monitor |
-
----
 
 ## GNOME Shell Extensions (always installed)
 
