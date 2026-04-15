@@ -44,7 +44,7 @@ The interactive installer walks you through every step using [gum](https://githu
 | Extension Manager | `com.mattjakeman.ExtensionManager` | Browse & toggle GNOME extensions |
 | Pins | `io.github.fabrialberio.pinapp` | Create custom app shortcuts |
 | Add Water | `dev.qwery.AddWater` | Apply Adwaita theme to Firefox |
-| Rewaita | `io.github.swordpuffin.rewaita` | Bring color to Adwaita icons |
+| Rewaita | `io.github.swordpuffin.rewaita` | Bring color to Adwaita |
 | Mission Center | `io.missioncenter.MissionCenter` | System resource monitor |
 
 ---
