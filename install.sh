@@ -572,10 +572,10 @@ ask_user_preferences() {
     local prefs=()
     local pref_labels=(
         "Use 24-hour time format"
+        "Hide weekday in clock"
         "Login without asking for password (auto-login)"
         "Blank screen: Never (display stays on)"
         "Disable automatic screen lock"
-        "Preserve battery (power-saver profile)"
     )
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
@@ -618,6 +618,10 @@ ask_user_preferences() {
                 # Also set locale-based 24h via dconf
                 dconf write /system/locale/region "'en_GB.UTF-8'" 2>/dev/null || true
                 ;;
+            "Hide weekday in clock")
+                info "Hiding weekday in clock..."
+                gsettings set org.gnome.desktop.interface clock-show-weekday false 2>/dev/null || true
+                ;;
             "Login without asking for password (auto-login)")
                 info "Enabling automatic login..."
                 local current_user
@@ -641,17 +645,6 @@ ask_user_preferences() {
             "Disable automatic screen lock")
                 info "Disabling automatic screen lock..."
                 gsettings set org.gnome.desktop.screensaver lock-enabled false 2>/dev/null || true
-                ;;
-            "Preserve battery (power-saver profile)")
-                info "Setting power profile to power-saver..."
-                if command -v powerprofilesctl &>/dev/null; then
-                    powerprofilesctl set power-saver || warning "Could not set power-saver profile."
-                else
-                    warning "powerprofilesctl not found - skipping power profile change."
-                fi
-                # Additional battery-saving settings
-                gsettings set org.gnome.settings-daemon.plugins.power idle-dim true 2>/dev/null || true
-                gsettings set org.gnome.settings-daemon.plugins.power ambient-enabled true 2>/dev/null || true
                 ;;
         esac
     done
