@@ -731,6 +731,125 @@ setup_themes() {
     info "Open Rewaita to browse and apply Adwaita icon theme variants."
 }
 
+# ─── Install Rewaita custom themes ─────────────────────────────────────────────
+# Copies the bundled theme CSS files into Rewaita's data directory and
+# configures prefs.json so they are selected by default.
+REWAITA_DATA_DIR="$HOME/.var/app/io.github.swordpuffin.rewaita/data"
+
+install_rewaita_themes() {
+    info "Installing Rewaita custom themes..."
+
+    local dark_dir="$REWAITA_DATA_DIR/dark"
+    local light_dir="$REWAITA_DATA_DIR/light"
+    mkdir -p "$dark_dir" "$light_dir"
+
+    # Copy bundled themes
+    local src="$DOTFILES_DIR"
+    cp -f "$src/A Default Dark Theme.css"  "$dark_dir/"  2>/dev/null || warning "Could not copy default dark theme."
+    cp -f "$src/A OLED Dark Theme.css"     "$dark_dir/"  2>/dev/null || warning "Could not copy OLED dark theme."
+    cp -f "$src/A Default Light Theme.css" "$light_dir/" 2>/dev/null || warning "Could not copy default light theme."
+
+    info "Theme files installed into Rewaita data directory."
+
+    # Configure Rewaita prefs.json - select the default dark/light themes
+    local prefs_file="$REWAITA_DATA_DIR/prefs.json"
+    python3 -c "
+import json, os
+
+path = '$prefs_file'
+try:
+    with open(path) as f:
+        prefs = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    prefs = {}
+
+# Set defaults, preserving any existing keys
+prefs.setdefault('window-controls', 'default')
+prefs.setdefault('modify-gtk3-theme', True)
+prefs.setdefault('modify-gnome-shell', True)
+prefs.setdefault('run-in-background', True)
+prefs.setdefault('transparency', False)
+prefs.setdefault('window', False)
+prefs.setdefault('sharp', False)
+prefs.setdefault('light-text', False)
+
+# Select our custom themes
+prefs['dark-theme']  = 'A Default Dark Theme.css'
+prefs['light-theme'] = 'A Default Light Theme.css'
+
+with open(path, 'w') as f:
+    json.dump(prefs, f, indent=4)
+" 2>/dev/null || warning "Could not write Rewaita prefs.json."
+
+    info "Rewaita configured with default dark and light themes."
+}
+
+# ─── Ask OLED / pure-black preference ──────────────────────────────────────────
+# If the user wants pure black (OLED) mode:
+#   • Switch Rewaita dark theme to the OLED variant
+#   • Enable Add Water "True Black" (oled-black) for Firefox
+#   • Set GNOME Text Editor appearance to Classic Dark
+#   • Set terminal (Ptyxis) palette to Dark Pastel
+ask_oled_preference() {
+    echo ""
+    local use_oled=false
+
+    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
+        if gum confirm "  Use pure-black OLED dark theme?"; then
+            use_oled=true
+        fi
+    else
+        echo -e "${CYAN}${BOLD}Use pure-black OLED dark theme?${NC} [y/N]"
+        local answer
+        read -rp "> " answer
+        case "$answer" in
+            [yY]*) use_oled=true ;;
+        esac
+    fi
+
+    if [ "$use_oled" = false ]; then
+        info "Using standard dark theme."
+        return
+    fi
+
+    info "Applying OLED / pure-black settings..."
+
+    # 1. Switch Rewaita dark theme to OLED variant
+    local prefs_file="$REWAITA_DATA_DIR/prefs.json"
+    python3 -c "
+import json
+path = '$prefs_file'
+try:
+    with open(path) as f:
+        prefs = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    prefs = {}
+prefs['dark-theme'] = 'A OLED Dark Theme.css'
+with open(path, 'w') as f:
+    json.dump(prefs, f, indent=4)
+" 2>/dev/null || warning "Could not update Rewaita prefs for OLED."
+    info "Rewaita dark theme set to OLED variant."
+
+    # 2. Enable Add Water "True Black" for Firefox
+    dconf write /dev/qwery/AddWater/Firefox/oled-black true 2>/dev/null || true
+    info "Add Water True Black enabled for Firefox."
+
+    # 3. GNOME Text Editor → Classic Dark appearance
+    gsettings set org.gnome.TextEditor style-scheme 'classic-dark' 2>/dev/null || true
+    info "Text Editor set to Classic Dark."
+
+    # 4. Terminal (Ptyxis) → Dark Pastel palette
+    #    Ptyxis stores palette per-profile; set on the default profile via dconf.
+    #    Also try the global interface-style key.
+    gsettings set org.gnome.Ptyxis default-profile-uuid '' 2>/dev/null || true
+    dconf write /org/gnome/Ptyxis/Profiles/default/palette "'Dark Pastel'" 2>/dev/null || true
+    # Fallback: set via gsettings on the app-level (works if profile schema is relocatable)
+    gsettings set org.gnome.Ptyxis interface-style 'dark' 2>/dev/null || true
+    info "Terminal palette set to Dark Pastel."
+
+    info "OLED / pure-black settings applied."
+}
+
 # ─── Configure Add Water (Adwaita theme for Firefox) ───────────────────────────
 configure_addwater() {
     info "Configuring Add Water for Firefox..."
@@ -1028,27 +1147,33 @@ main() {
     # 7. Adwaita theme setup (adw-gtk3 + Flatpak overrides)
     setup_themes
 
-    # 8. Configure Add Water & Firefox
+    # 8. Install Rewaita custom themes (dark, OLED dark, light)
+    install_rewaita_themes
+
+    # 9. Ask OLED preference (pure-black dark theme, Add Water, Text Editor, Terminal)
+    ask_oled_preference
+
+    # 10. Configure Add Water & Firefox
     configure_addwater
     configure_firefox
 
-    # 9. User preferences override dconf base (24h clock, auto-login, blank screen, battery)
+    # 11. User preferences override dconf base (24h clock, auto-login, blank screen, battery)
     ask_user_preferences
 
-    # 10. Nautilus configuration (sort, list view, context menu, starred folders)
+    # 12. Nautilus configuration (sort, list view, context menu, starred folders)
     configure_nautilus
 
-    # 11. Download wallpaper collection
+    # 13. Download wallpaper collection
     ask_download_wallpapers
 
-    # 12. Ask to uninstall GNOME bloat
+    # 14. Ask to uninstall GNOME bloat
     ask_uninstall_bloat
 
-    # 13. Optional applications (interactive chooser)
+    # 15. Optional applications (interactive chooser)
     select_and_install_optional_apps
 
 
-    # 14. Pin any installed optional apps to dock favorites
+    # 16. Pin any installed optional apps to dock favorites
     pin_optional_apps_to_favorites
 
     echo ""

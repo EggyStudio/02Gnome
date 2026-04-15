@@ -1,0 +1,72 @@
+@define-color window_bg_color #000000;
+@define-color window_fg_color #ffffff;
+
+@define-color view_bg_color #000000;
+@define-color view_fg_color #ffffff;
+
+@define-color success_color #78e9ab;
+@define-color success_bg_color #26a269;
+@define-color success_fg_color #ffffff;
+
+@define-color warning_color #ffc252;
+@define-color warning_bg_color #cd9309;
+@define-color warning_fg_color #000000;
+
+@define-color destructive_color #ff938c;
+@define-color destructive_bg_color #c01c28;
+@define-color destructive_fg_color #ffffff;
+
+@define-color error_color #ff938c;
+@define-color error_bg_color #c01c28;
+@define-color error_fg_color #ffffff;
+
+@define-color headerbar_bg_color #000000;
+@define-color headerbar_fg_color #ffffff;
+
+@define-color popover_bg_color #000000;
+@define-color popover_fg_color #ffffff;
+
+@define-color dialog_bg_color #000000;
+@define-color dialog_fg_color #ffffff;
+
+@define-color card_bg_color #252525;
+@define-color card_fg_color #ffffff;
+
+@define-color sidebar_bg_color #000000;
+@define-color sidebar_fg_color #ffffff;
+@define-color sidebar_backdrop_color #000000;
+@define-color sidebar_border_color #252525;
+
+@define-color secondary_sidebar_bg_color @sidebar_bg_color;
+@define-color secondary_sidebar_fg_color @sidebar_fg_color;
+@define-color secondary_sidebar_backdrop_color @sidebar_backdrop_color;
+@define-color secondary_sidebar_border_color @sidebar_border_color;
+
+@define-color blue_1 #99c1f1;
+@define-color blue_2 #62a0ea;
+@define-color green_1 #8ff0a4;
+@define-color yellow_1 #f9f06b;
+@define-color red_1 #f66151;
+@define-color purple_1 #dc8add;
+@define-color purple_2 #c061cb;
+@define-color orange_1 #ffbe6f;
+@define-color brown_1 #cdab8f;
+@define-color light_1 #ffffff;
+@define-color light_5 #9a9996;
+@define-color dark_1 #77767b;
+
+@define-color accent_color #3584e4;
+@define-color accent_bg_color #3584e4;
+@define-color accent_fg_color #ffffff;
+
+toast {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+toggle:checked {
+  background-color: #252525;
+  color: #ffffff;
+}
+
+/* Enter any extra CSS here */
