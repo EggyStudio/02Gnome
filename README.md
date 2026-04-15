@@ -24,16 +24,18 @@ The interactive installer walks you through every step using [gum](https://githu
 | 1 | Installs **gum** for a nice TUI experience |
 | 2 | Runs **system update** (`dnf update` + `flatpak update`) |
 | 3 | Asks you to pick a profile: **Desktop** or **Laptop** |
-| 4 | Installs **git**, clones the repo to `~/.dotfiles`, sets up **Flatpak + Flathub** |
-| 5 | Installs **essential Flatpak apps** and **GNOME Shell extensions** |
-| 6 | Sets up **Adwaita themes** (`adw-gtk3` + Flatpak overrides) |
-| 7 | Lets you toggle **user preferences** (24h clock, auto-login, blank screen, screen lock, battery) |
-| 8 | Configures **Nautilus** (list view, sort folders first, tree view, starred folders) |
-| 9 | Optionally downloads a **wallpaper collection** |
-| 10 | Optionally **removes GNOME bloat** (Boxes, Characters, Weather, LibreOffice, etc.) |
-| 11 | Lets you pick **optional apps** to install (Spotify, Discord, Steam, VS Code, etc.) |
-| 12 | Imports **profile-specific dconf settings** and runs the profile setup script |
-| 13 | **Pins installed optional apps** to the dock favorites |
+| 4 | Installs **git**, **Docker**, and sets up **Flatpak + Flathub** |
+| 5 | Imports **profile-specific dconf settings** and runs the profile setup script |
+| 6 | Installs **essential Flatpak apps** and **GNOME Shell extensions** |
+| 7 | Sets up **Adwaita themes** and asks for **Oled (pure-black) preference** |
+| 8 | Configures **Firefox** (injects `user.js` for privacy, disables AI, sets up GNOME theme) |
+| 9 | Lets you toggle **user preferences** (24h clock, auto-login, blank screen, dark mode, etc.) |
+| 10 | Configures **Nautilus, Terminal, and Text Editor** defaults |
+| 11 | Optionally downloads a **wallpaper collection** |
+| 12 | Optionally **removes GNOME bloat** (Boxes, Characters, Weather, LibreOffice, etc.) |
+| 13 | Lets you pick **optional apps** (Spotify, Discord, Steam, VS Code, OpenCode, etc.) |
+| 14 | **Pins installed apps** to the dock (Firefox first, Files/Terminal/Software last) |
+| 15 | **Resets the app grid** to a single flat alphabetical layout |
 
 ---
 
@@ -76,6 +78,7 @@ Pick any combination from the TUI menu:
 | Entertainment | Spotify, Discord, Signal, Steam, VLC | Flatpak |
 | Creative | Blender, GIMP, Unity Hub | Flatpak |
 | Utilities | VS Code, JetBrains Rider, GitHub Desktop, Trayscale | Flatpak |
+| Developer | OpenCode (AI coding agent) | Script |
 | Runtimes | .NET SDK & Runtimes (LTS + STS) | Script |
 
 Installed optional apps are automatically **pinned to the dock**.
@@ -107,8 +110,9 @@ Installed optional apps are automatically **pinned to the dock**.
 
 - **adw-gtk3-dark** installed via dnf - makes GTK3 apps match GTK4 Adwaita
 - Flatpak overrides applied for `gtk-4.0` and `gtk-3.0` theme access
-- Open **Add Water** after setup to apply Adwaita theme to Firefox
-- Open **Rewaita** to browse and apply icon theme variants
+- Custom **Rewaita** themes included (`themes/dark` and `themes/light`)
+- Prompts for an **Oled** preference to apply pure-black styling to Rewaita, Firefox, Terminal, and Text Editor
+- Automatically configures **Add Water** and injects `user.js` to theme and lock down Firefox (disabling AI/bloat)
 
 ---
 
@@ -127,6 +131,8 @@ RPM removal runs a **dry-run first** - if removing a package would cascade into 
 ```
 GnomeBlueprint/
 ├── install.sh                  # Root installer (curl | bash)
+├── firefox-profile/
+│   └── user.js                 # Privacy, theming, and UI settings for Firefox
 ├── gnome-settings/
 │   ├── desktop.dconf           # dconf settings for desktop profile
 │   └── laptop.dconf            # dconf settings for laptop profile
@@ -135,6 +141,9 @@ GnomeBlueprint/
 │   │   └── setup.sh            # Desktop-specific setup script
 │   └── laptop/
 │       └── setup.sh            # Laptop-specific setup script
+├── themes/
+│   ├── dark/                   # Default and Oled pure-black CSS themes
+│   └── light/                  # Default light CSS theme
 ├── LICENSE                     # GNU GPL v3.0
 └── README.md
 ```
