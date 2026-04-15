@@ -775,7 +775,7 @@ declare -A OPTIONAL_DESKTOP_FILES=(
 pin_optional_apps_to_favorites() {
     # Get current favorites
     local current_favs
-    current_favs=$(gsettings get org.gnome.shell favorite-apps 2>/dev/null) || return
+    current_favs=$(gsettings get org.gnome.shell favorite-apps 2>/dev/null) || return 0
 
     local changed=false
 
@@ -870,15 +870,15 @@ safe_dnf_remove() {
     local pkg="$1" label="$2"
 
     # Not installed - nothing to do
-    command -v rpm &>/dev/null || return
-    rpm -q "$pkg" &>/dev/null 2>&1 || return
+    command -v rpm &>/dev/null || return 0
+    rpm -q "$pkg" &>/dev/null 2>&1 || return 0
 
     # Dry-run: would this also pull gnome-shell / gdm / mutter?
     local sim
     sim=$(dnf remove --assumeno --setopt=clean_requirements_on_remove=True "$pkg" 2>&1 || true)
     if echo "$sim" | grep -qEi "$PROTECTED_RE"; then
         warning "Skipping $label ($pkg) - removing it would also remove core desktop packages."
-        return
+        return 0
     fi
 
     info "Removing RPM: $pkg ($label)..."
