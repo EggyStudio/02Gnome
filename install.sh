@@ -576,12 +576,20 @@ ask_user_preferences() {
         "Login without asking for password (auto-login)"
         "Blank screen: Never (display stays on)"
         "Disable automatic screen lock"
+        "Start with Bluetooth off"
     )
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        # Build comma-separated string of all labels for pre-selection
+        # Build comma-separated string of labels for pre-selection (exclude opt-in items)
         local selected_default
-        selected_default=$(IFS=,; echo "${pref_labels[*]}")
+        local _presel=()
+        for _l in "${pref_labels[@]}"; do
+            case "$_l" in
+                "Start with Bluetooth off") ;; # not pre-selected
+                *) _presel+=("$_l") ;;
+            esac
+        done
+        selected_default=$(IFS=,; echo "${_presel[*]}")
 
         local raw
         raw=$(gum choose --no-limit \
@@ -645,6 +653,11 @@ ask_user_preferences() {
             "Disable automatic screen lock")
                 info "Disabling automatic screen lock..."
                 gsettings set org.gnome.desktop.screensaver lock-enabled false 2>/dev/null || true
+                ;;
+            "Start with Bluetooth off")
+                info "Disabling Bluetooth on startup..."
+                sudo systemctl disable bluetooth 2>/dev/null || true
+                sudo rfkill block bluetooth 2>/dev/null || true
                 ;;
         esac
     done
