@@ -320,10 +320,10 @@ OPTIONAL_APPS=(
     "JetBrains Rider|flatpak:com.jetbrains.Rider"
     "GitHub Desktop|flatpak:io.github.shiftey.Desktop"
     "Trayscale (Tailscale GUI)|flatpak:dev.deedles.Trayscale"
-    # Runtimes
-    ".NET SDK & Runtimes|script:dotnet"
     # Developer Tools
     "OpenCode (AI coding agent)|script:opencode"
+    # Runtimes
+    ".NET SDK & Runtimes|script:dotnet"
 )
 
 # ─── .NET SDK installer (via Microsoft install script) ─────────────────────────
@@ -808,7 +808,7 @@ ask_oled_preference() {
     local use_oled=false
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if gum confirm "  Use pure-black OLED dark theme?"; then
+        if gum confirm --default=no "  Use pure-black OLED dark theme?"; then
             use_oled=true
         fi
     else
