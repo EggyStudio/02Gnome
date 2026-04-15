@@ -1032,6 +1032,38 @@ pin_optional_apps_to_favorites() {
     fi
 }
 
+# ─── Register OpenCode shortcut (Super+C) if installed ─────────────────────────
+register_opencode_shortcut() {
+    if ! command -v opencode &>/dev/null; then
+        return
+    fi
+
+    info "Registering Super+C shortcut for OpenCode..."
+
+    # Read current custom keybindings list
+    local current
+    current=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings 2>/dev/null) || return 0
+
+    local path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/"
+
+    # Only add if not already present
+    if echo "$current" | grep -q "custom2"; then
+        info "Custom keybinding slot custom2 already in use - skipping."
+        return
+    fi
+
+    # Append custom2 to the list
+    current="${current%]*}, '${path}']"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$current" 2>/dev/null || true
+
+    # Set the keybinding
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/name "'OpenCode'" 2>/dev/null || true
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/command "'ptyxis -e opencode'" 2>/dev/null || true
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/binding "'<Super>c'" 2>/dev/null || true
+
+    info "OpenCode shortcut registered: Super+C"
+}
+
 # ─── Download wallpaper collection ──────────────────────────────────────────────
 WALLPAPER_REPO="https://github.com/dharmx/walls"
 WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
@@ -1247,13 +1279,16 @@ main() {
     # 17. Pin any installed optional apps to dock favorites
     pin_optional_apps_to_favorites
 
-    # 18. Reset app grid (remove folders, single alphabetical view)
+    # 18. Register OpenCode shortcut (Super+C) if installed
+    register_opencode_shortcut
+
+    # 19. Reset app grid (remove folders, single alphabetical view)
     reset_app_grid
 
-    # 19. Final system cleanup & update
+    # 20. Final system cleanup & update
     final_cleanup
 
-    # 20. Ask to reboot
+    # 21. Ask to reboot
     echo ""
     info "Installation complete!"
     ask_reboot
