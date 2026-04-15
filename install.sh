@@ -1042,6 +1042,18 @@ pin_optional_apps_to_favorites() {
     local current_favs
     current_favs=$(gsettings get org.gnome.shell favorite-apps 2>/dev/null) || return 0
 
+    # Apps that must always stay at the very end of the dock
+    local -a tail_apps=(
+        "org.gnome.Nautilus.desktop"
+        "org.gnome.Ptyxis.desktop"
+        "org.gnome.Software.desktop"
+    )
+
+    # Remove tail apps from the list (we'll re-append them at the end)
+    for tail in "${tail_apps[@]}"; do
+        current_favs=$(echo "$current_favs" | sed "s/, *'${tail}'//g; s/'${tail}', *//g; s/'${tail}'//g")
+    done
+
     local changed=false
 
     for app_id in "${OPTIONAL_PIN_ORDER[@]}"; do
@@ -1055,6 +1067,12 @@ pin_optional_apps_to_favorites() {
             fi
         fi
     done
+
+    # Re-append tail apps at the very end
+    for tail in "${tail_apps[@]}"; do
+        current_favs="${current_favs%]*}, '${tail}']"
+    done
+    changed=true
 
     if [ "$changed" = true ]; then
         gsettings set org.gnome.shell favorite-apps "$current_favs" 2>/dev/null || true
