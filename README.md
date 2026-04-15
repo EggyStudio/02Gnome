@@ -1,19 +1,16 @@
 # GnomeBlueprint
 
-> Automate your perfect GNOME desktop - extensions, themes, apps, and settings - in one command.
+Welcome to GnomeBlueprint Installer for Linux! This guide will help you automate your perfect GNOME desktop - extensions, themes, apps, and settings - in one command.
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+## Quick Installation
 
----
-
-## ⚡ One-liner Installation
+The fastest way to get started is with our one-line installer:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/CanTalat-Yakan/GnomeBlueprint/main/install.sh)
-bash <(curl -fsSL https://shorturl.at/MQkQG)
+curl -fsSL https://bit.ly/gnomeblueprint | bash
 ```
 
-The interactive installer walks you through every step using [gum](https://github.com/charmbracelet/gum) (with a plain-text fallback).
+![gnomeblueprint.png](.github/assets/gnomeblueprint.png)
 
 ---
 
