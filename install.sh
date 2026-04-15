@@ -802,7 +802,7 @@ with open(path, 'w') as f:
 #   • Switch Rewaita dark theme to the OLED variant
 #   • Enable Add Water "True Black" (oled-black) for Firefox
 #   • Set GNOME Text Editor appearance to Classic Dark
-#   • Set terminal (Ptyxis) palette to Dark Pastel
+#   • Set terminal (Ptyxis) palette to XTerm
 ask_oled_preference() {
     echo ""
     local use_oled=false
@@ -844,21 +844,47 @@ with open(path, 'w') as f:
     info "Rewaita dark theme set to OLED variant."
 
     # 2. Enable Add Water "True Black" for Firefox
-    dconf write /dev/qwery/AddWater/Firefox/oled-black true 2>/dev/null || true
-    info "Add Water True Black enabled for Firefox."
+    #    Add Water is a Flatpak - use flatpak run to set gsettings inside the sandbox
+    if command -v flatpak &>/dev/null; then
+        flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater.Firefox oled-black true 2>/dev/null \
+            || warning "Could not set Add Water oled-black (run Add Water once first)."
+        info "Add Water True Black enabled for Firefox."
+    else
+        warning "flatpak not available - skipping Add Water True Black."
+    fi
 
     # 3. GNOME Text Editor → Classic Dark appearance
     gsettings set org.gnome.TextEditor style-scheme 'classic-dark' 2>/dev/null || true
     info "Text Editor set to Classic Dark."
 
-    # 4. Terminal (Ptyxis) → Dark Pastel palette
-    #    Ptyxis stores palette per-profile; set on the default profile via dconf.
-    #    Also try the global interface-style key.
-    gsettings set org.gnome.Ptyxis default-profile-uuid '' 2>/dev/null || true
-    dconf write /org/gnome/Ptyxis/Profiles/default/palette "'Dark Pastel'" 2>/dev/null || true
-    # Fallback: set via gsettings on the app-level (works if profile schema is relocatable)
+    # 4. Terminal (Ptyxis) → XTerm palette
+    #    Ptyxis stores palette per-profile with UUID-based dconf paths.
+    #    Find the existing default profile UUID, or create one if none exists.
+    local profile_uuid
+    profile_uuid=$(dconf read /org/gnome/Ptyxis/default-profile-uuid 2>/dev/null | tr -d "'") || true
+
+    if [ -z "$profile_uuid" ]; then
+        # Try to get the first profile from profile-uuids
+        profile_uuid=$(dconf read /org/gnome/Ptyxis/profile-uuids 2>/dev/null \
+            | python3 -c "import sys,ast; l=ast.literal_eval(sys.stdin.read()); print(l[0] if l else '')" 2>/dev/null) || true
+    fi
+
+    if [ -z "$profile_uuid" ]; then
+        # No profile exists yet - create one with a deterministic UUID
+        profile_uuid="d4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f90"
+        dconf write /org/gnome/Ptyxis/default-profile-uuid "'$profile_uuid'" 2>/dev/null || true
+        dconf write /org/gnome/Ptyxis/profile-uuids "['$profile_uuid']" 2>/dev/null || true
+    fi
+
+    if [ -n "$profile_uuid" ]; then
+        dconf write "/org/gnome/Ptyxis/Profiles/$profile_uuid/palette" "'XTerm'" 2>/dev/null || true
+        info "Terminal palette set to XTerm."
+    else
+        warning "Could not determine Ptyxis profile UUID - set terminal palette manually."
+    fi
+
+    # Also set Ptyxis interface style to dark
     gsettings set org.gnome.Ptyxis interface-style 'dark' 2>/dev/null || true
-    info "Terminal palette set to Dark Pastel."
 
     info "OLED / pure-black settings applied."
 }
@@ -867,14 +893,17 @@ with open(path, 'w') as f:
 configure_addwater() {
     info "Configuring Add Water for Firefox..."
 
-    # Pre-configure Add Water via dconf so the theme is enabled with preferred options.
+    # Add Water is a Flatpak - use flatpak run to set gsettings inside the sandbox.
     # Add Water still needs to run once to actually install the CSS into the Firefox profile.
-    dconf write /dev/qwery/AddWater/Firefox/theme-enabled true 2>/dev/null || true
-    dconf write /dev/qwery/AddWater/Firefox/hide-single-tab true 2>/dev/null || true
-    dconf write /dev/qwery/AddWater/Firefox/normal-width-tabs true 2>/dev/null || true
-    dconf write /dev/qwery/AddWater/background-update true 2>/dev/null || true
-
-    info "Add Water preferences set. Open Add Water once to apply the theme to Firefox."
+    if command -v flatpak &>/dev/null; then
+        flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater.Firefox theme-enabled true 2>/dev/null || true
+        flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater.Firefox hide-single-tab true 2>/dev/null || true
+        flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater.Firefox normal-width-tabs true 2>/dev/null || true
+        flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater background-update true 2>/dev/null || true
+        info "Add Water preferences set. Open Add Water once to apply the theme to Firefox."
+    else
+        warning "flatpak not available - skipping Add Water configuration."
+    fi
 }
 
 # ─── Configure Firefox preferences ─────────────────────────────────────────────
