@@ -1044,7 +1044,6 @@ GNOME_BLOAT_APPS=(
     "-|libreoffice-impress|LibreOffice Impress"
     "-|libreoffice-writer|LibreOffice Writer"
     "org.gnome.Maps|gnome-maps|Maps"
-    "org.freedesktop.MalcontentControl|malcontent|Parental Controls"
     "org.gnome.SystemMonitor|gnome-system-monitor|System Monitor"
     "org.gnome.Tour|gnome-tour|Tour"
     "org.gnome.Weather|gnome-weather|Weather"
