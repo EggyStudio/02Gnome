@@ -318,11 +318,18 @@ select_and_install_docker_services() {
                 local url
                 url=$(get_docker_service_url "$dir_name")
                 if [ -n "$url" ]; then
-                    cat > "$target_dir/${dir_name}.sh" <<EOF
-#!/bin/bash
-xdg-open "${url}"
+                    local desktop_file="$target_dir/${dir_name}.desktop"
+                    cat > "$desktop_file" <<EOF
+[Desktop Entry]
+Type=Application
+Name=${label}
+Icon=web-browser
+Exec=xdg-open ${url}
+Terminal=false
 EOF
-                    chmod +x "$target_dir/${dir_name}.sh"
+                    # Mark as trusted so Nautilus runs it on double-click
+                    chmod +x "$desktop_file"
+                    gio set "$desktop_file" metadata::trusted true 2>/dev/null || true
                 fi
 
                 # Start the service
