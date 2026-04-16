@@ -1,7 +1,7 @@
 <h1 align="center" style="text-align:center">GnomeBlueprint</h1>
 <h4 align="center" style="text-align:center">Automate your perfect GNOME desktop in one command.</h4>
 <p align="center" style="text-align:center">Extensions, themes, apps, and settings - all configured interactively.</p>
-<p align="center" style="text-align:center"><strong>⏱️ 10 min Fedora install + 10 min GnomeBlueprint = fully configured desktop in 20 minutes.</strong></p>
+<p align="center" style="text-align:center"><strong>10 min Fedora install + 10 min GnomeBlueprint = fully configured desktop in 20 minutes.</strong></p>
 
 <p align="center" style="text-align:center">
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Linux-FCC624">
