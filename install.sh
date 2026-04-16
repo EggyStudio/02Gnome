@@ -1301,7 +1301,6 @@ OPTIONAL_PIN_ORDER=(
     "com.valvesoftware.Steam|steam"
     "com.discordapp.Discord|discord"
     "org.signal.Signal|signal-desktop"
-    "org.videolan.VLC|vlc"
     # Creative
     "org.blender.Blender|blender"
     "org.gimp.GIMP|gimp"
@@ -1310,7 +1309,6 @@ OPTIONAL_PIN_ORDER=(
     "com.visualstudio.code|code"
     "com.jetbrains.Rider|jetbrains-rider"
     "io.github.shiftey.Desktop|github-desktop"
-    "dev.deedles.Trayscale|trayscale"
 )
 
 # Find the .desktop file for an app, checking Flatpak first then RPM names.
