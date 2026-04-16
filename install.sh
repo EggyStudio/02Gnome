@@ -1042,6 +1042,7 @@ configure_firefox() {
     info "Configuring Firefox preferences..."
 
     local src_user_js="$DOTFILES_DIR/firefox-profile/user.js"
+    local src_xulstore="$DOTFILES_DIR/firefox-profile/xulstore.json"
     if [ ! -f "$src_user_js" ]; then
         warning "No user.js found in repo - skipping Firefox configuration."
         return
@@ -1121,6 +1122,11 @@ configure_firefox() {
         # Toggle Oled setting based on user choice
         if [ "$USE_OLED" = true ]; then
             sed -i 's/user_pref("gnomeTheme.oledBlack", false);/user_pref("gnomeTheme.oledBlack", true);/' "$target"
+        fi
+
+        # Copy xulstore.json (toolbar layout: no flexible spaces, no reload button)
+        if [ -f "$src_xulstore" ]; then
+            cp -f "$src_xulstore" "$profile/xulstore.json"
         fi
 
         info "Configured Firefox profile: $(basename "$profile")"
