@@ -1006,7 +1006,7 @@ configure_firefox() {
 
         # 1. Parse profiles.ini for declared profile paths
         if [ -f "$root/profiles.ini" ]; then
-            while IFS= read -r line; do
+            while IFS= read -r line || [ -n "$line" ]; do
                 # Strip carriage returns and leading/trailing whitespace
                 line="${line%%$'\r'}"
                 line="${line#"${line%%[![:space:]]*}"}"
@@ -1019,16 +1019,22 @@ configure_firefox() {
                         else
                             pdir="$root/$value"
                         fi
-                        [ -d "$pdir" ] && profile_dirs+=("$pdir")
+                        if [ -d "$pdir" ]; then
+                            profile_dirs+=("$pdir")
+                        fi
                         ;;
                 esac
             done < "$root/profiles.ini"
         fi
 
-        # 2. Also scan for directories containing prefs.js
-        while IFS= read -r -d '' pjs; do
-            profile_dirs+=("$(dirname "$pjs")")
-        done < <(find "$root" -maxdepth 2 -name 'prefs.js' -type f -print0 2>/dev/null)
+        # 2. Also scan for directories containing prefs.js (without process substitution)
+        local found_prefs
+        found_prefs=$(find "$root" -maxdepth 2 -name 'prefs.js' -type f 2>/dev/null) || true
+        if [ -n "$found_prefs" ]; then
+            while IFS= read -r pjs; do
+                [ -n "$pjs" ] && profile_dirs+=("$(dirname "$pjs")")
+            done <<< "$found_prefs"
+        fi
     done
 
     # Deduplicate
@@ -1036,7 +1042,7 @@ configure_firefox() {
         local unique=()
         for d in "${profile_dirs[@]}"; do
             local dup=false
-            for u in "${unique[@]}"; do
+            for u in "${unique[@]+"${unique[@]}"}"; do
                 [ "$d" = "$u" ] && { dup=true; break; }
             done
             $dup || unique+=("$d")
@@ -1204,13 +1210,13 @@ ask_download_wallpapers() {
         # Set the Wallpaper Slideshow extension to use the preferred folder
         local slideshow_dir="$WALLPAPER_DIR/walls/m-26.jp"
         if [ -d "$slideshow_dir" ]; then
-            # The extension compiles its own GSettings schema on install
+            # Write directly via dconf (most reliable for extensions with bundled schemas)
+            dconf write /org/gnome/shell/extensions/azwallpaper/slideshow-directory "'$slideshow_dir'" 2>/dev/null || true
+
+            # Also try gsettings with the extension's compiled schema dir as fallback
             local ext_schema_dir="$HOME/.local/share/gnome-shell/extensions/azwallpaper@azwallpaper.gitlab.com/schemas"
             if [ -d "$ext_schema_dir" ]; then
-                gsettings --schemadir "$ext_schema_dir" set org.gnome.shell.extensions.azwallpaper slideshow-directory "$slideshow_dir" 2>/dev/null || true
-            else
-                # Fallback: write directly via dconf
-                dconf write /org/gnome/shell/extensions/azwallpaper/slideshow-directory "'$slideshow_dir'" 2>/dev/null || true
+                GSETTINGS_SCHEMA_DIR="$ext_schema_dir" gsettings set org.gnome.shell.extensions.azwallpaper slideshow-directory "$slideshow_dir" 2>/dev/null || true
             fi
             info "Wallpaper Slideshow set to $slideshow_dir"
         fi
