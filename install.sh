@@ -11,6 +11,7 @@ REPO_URL="https://github.com/CanTalat-Yakan/GnomeBlueprint"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 GUM_AVAILABLE=true
 USE_OLED=false
+INSTALLED_DOCKER_SERVICES=()
 
 # ─── Colors ───────────────────────────────────────────────────────────────────
 YELLOW='\033[1;33m'
@@ -311,10 +312,56 @@ select_and_install_docker_services() {
                     || warning "${label} failed to start - you can start it manually later."
 
                 info "${label} deployed. See ${target_dir}/README.md for usage."
+                INSTALLED_DOCKER_SERVICES+=("$dir_name")
                 break
             fi
         done
     done
+}
+
+# ─── Create web app shortcuts for Docker services ───────────────────────────────
+create_docker_web_apps() {
+    local dominated=false
+
+    for svc in "${INSTALLED_DOCKER_SERVICES[@]+"${INSTALLED_DOCKER_SERVICES[@]}"}"; do
+        case "$svc" in
+            immich)
+                _create_web_app_desktop "Immich" "http://localhost:2283" "camera-photo"
+                dominated=true
+                ;;
+            ollama)
+                _create_web_app_desktop "Open WebUI" "http://localhost:3000" "preferences-system-chat"
+                dominated=true
+                ;;
+        esac
+    done
+
+    if [ "$dominated" = true ]; then
+        info "Web app shortcuts created. You can also manage them in Web App Hub."
+    fi
+}
+
+_create_web_app_desktop() {
+    local name="$1" url="$2" icon="$3"
+    local app_id
+    app_id=$(echo "$name" | tr '[:upper:] ' '[:lower:]-')
+    local desktop_file="$HOME/.local/share/applications/webapp-${app_id}.desktop"
+
+    mkdir -p "$HOME/.local/share/applications"
+
+    cat > "$desktop_file" << EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Name=${name}
+Exec=xdg-open ${url}
+Icon=${icon}
+Categories=Network;WebBrowser;
+StartupNotify=true
+EOF
+
+    info "Created web app shortcut: ${name} → ${url}"
 }
 
 # ─── Install fastfetch ─────────────────────────────────────────────────────────
@@ -344,6 +391,7 @@ ESSENTIAL_FLATPAK_APPS=(
     "dev.qwery.AddWater"                   # Add Water - apply Adwaita theme to Firefox
     "io.github.swordpuffin.rewaita"        # Rewaita - bring color to Adwaita
     "io.missioncenter.MissionCenter"       # Mission Center - system monitor
+    "org.pvermeer.WebAppHub"               # Web App Hub - manage web applications
 )
 
 install_essential_flatpaks() {
@@ -1853,6 +1901,9 @@ BANNER
 
     # 17. Docker Compose services (interactive chooser)
     select_and_install_docker_services
+
+    # 17b. Create web app shortcuts for installed Docker services
+    create_docker_web_apps
 
     # 18. Pin any installed optional apps to dock favorites
     pin_optional_apps_to_favorites
