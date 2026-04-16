@@ -959,11 +959,15 @@ ask_oled_preference() {
         gsettings set org.gnome.TextEditor style-scheme 'Adwaita-dark' 2>/dev/null || true
 
         # Set Terminal (Ptyxis) palette to GNOME (default)
-        local profile_uuid
-        profile_uuid=$(dconf read /org/gnome/Ptyxis/default-profile-uuid 2>/dev/null | tr -d "'") || true
+        local profile_uuid=""
+        profile_uuid=$(dconf read /org/gnome/Ptyxis/default-profile-uuid 2>/dev/null | tr -d "'" || true)
         if [ -z "$profile_uuid" ]; then
-            profile_uuid=$(dconf read /org/gnome/Ptyxis/profile-uuids 2>/dev/null \
-                | python3 -c "import sys,ast; l=ast.literal_eval(sys.stdin.read()); print(l[0] if l else '')" 2>/dev/null) || true
+            local raw_uuids=""
+            raw_uuids=$(dconf read /org/gnome/Ptyxis/profile-uuids 2>/dev/null || true)
+            if [ -n "$raw_uuids" ]; then
+                profile_uuid=$(echo "$raw_uuids" \
+                    | python3 -c "import sys,ast; l=ast.literal_eval(sys.stdin.read()); print(l[0] if l else '')" 2>/dev/null || true)
+            fi
         fi
         if [ -n "$profile_uuid" ]; then
             dconf write "/org/gnome/Ptyxis/Profiles/$profile_uuid/palette" "'gnome'" 2>/dev/null || true
@@ -1005,11 +1009,15 @@ with open(path, 'w') as f:
     info "Text Editor set to Classic Dark."
 
     # 4. Terminal (Ptyxis) → Dark Pastel palette
-    local profile_uuid
-    profile_uuid=$(dconf read /org/gnome/Ptyxis/default-profile-uuid 2>/dev/null | tr -d "'") || true
+    local profile_uuid=""
+    profile_uuid=$(dconf read /org/gnome/Ptyxis/default-profile-uuid 2>/dev/null | tr -d "'" || true)
     if [ -z "$profile_uuid" ]; then
-        profile_uuid=$(dconf read /org/gnome/Ptyxis/profile-uuids 2>/dev/null \
-            | python3 -c "import sys,ast; l=ast.literal_eval(sys.stdin.read()); print(l[0] if l else '')" 2>/dev/null) || true
+        local raw_uuids=""
+        raw_uuids=$(dconf read /org/gnome/Ptyxis/profile-uuids 2>/dev/null || true)
+        if [ -n "$raw_uuids" ]; then
+            profile_uuid=$(echo "$raw_uuids" \
+                | python3 -c "import sys,ast; l=ast.literal_eval(sys.stdin.read()); print(l[0] if l else '')" 2>/dev/null || true)
+        fi
     fi
     if [ -z "$profile_uuid" ]; then
         # No profile exists yet - create one with a deterministic UUID
