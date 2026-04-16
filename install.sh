@@ -982,6 +982,7 @@ ask_oled_preference() {
             fi
             if [ -n "$profile_uuid" ]; then
                 dconf write "/org/gnome/Ptyxis/Profiles/$profile_uuid/palette" "'gnome'" 2>/dev/null || true
+                pkill -x ptyxis 2>/dev/null || true
             fi
         fi
 
@@ -1060,6 +1061,8 @@ with open(path, 'w') as f:
 
         if [ -n "$profile_uuid" ]; then
             dconf write "/org/gnome/Ptyxis/Profiles/$profile_uuid/palette" "'XTerm'" 2>/dev/null || true
+            # Kill Ptyxis so it restarts with the new palette applied
+            pkill -x ptyxis 2>/dev/null || true
             info "Terminal palette set to XTerm."
         else
             warning "Could not determine Ptyxis profile UUID - set terminal palette manually."
