@@ -233,6 +233,22 @@ install_essential_flatpaks() {
     for app in "${ESSENTIAL_FLATPAK_APPS[@]}"; do
         install_one_flatpak "$app"
     done
+
+    # Install GNOME Tweaks (system package, not available as Flatpak)
+    info "Installing GNOME Tweaks..."
+    if command -v dnf &>/dev/null; then
+        rpm -q gnome-tweaks &>/dev/null 2>&1 \
+            || sudo dnf install -y gnome-tweaks \
+            || warning "Could not install gnome-tweaks."
+    elif command -v pacman &>/dev/null; then
+        pacman -Qi gnome-tweaks &>/dev/null 2>&1 \
+            || sudo pacman -Sy --noconfirm gnome-tweaks \
+            || warning "Could not install gnome-tweaks."
+    elif command -v apt-get &>/dev/null; then
+        dpkg -s gnome-tweaks &>/dev/null 2>&1 \
+            || sudo apt-get install -y gnome-tweaks \
+            || warning "Could not install gnome-tweaks."
+    fi
 }
 
 # ─── GNOME Shell extensions ────────────────────────────────────────────────────
