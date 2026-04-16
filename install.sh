@@ -749,6 +749,19 @@ configure_nautilus() {
         fi
     done
 
+    # Star Steam library folder if Steam is installed
+    local steam_folder="/home/${current_user}/.steam/steam/steamapps/common"
+    if flatpak list --app --columns=application 2>/dev/null | grep -qx "com.valvesoftware.Steam" \
+       || [ -d "$steam_folder" ]; then
+        if [ -d "$steam_folder" ]; then
+            gio set -t stringv "$steam_folder" metadata::xdg-tags "starred" 2>/dev/null \
+                || warning "Could not star $steam_folder"
+            info "Starred: $steam_folder"
+        else
+            info "Steam installed but library folder not yet created - star it after first launch."
+        fi
+    fi
+
     info "Nautilus configuration complete."
 }
 
