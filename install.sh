@@ -273,8 +273,6 @@ select_and_install_docker_services() {
 
     info "Deploying ${#selected[@]} Docker service(s)..."
 
-    local deployed_urls=()
-
     for sel in "${selected[@]}"; do
         for entry in "${DOCKER_SERVICES[@]}"; do
             local label="${entry%%|*}"
@@ -313,65 +311,10 @@ select_and_install_docker_services() {
                     || warning "${label} failed to start - you can start it manually later."
 
                 info "${label} deployed. See ${target_dir}/README.md for usage."
-
-                # Track deployed service URLs for bookmarking
-                case "$dir_name" in
-                    zerotierone) deployed_urls+=("https://my.zerotier.com|ZeroTier Dashboard") ;;
-                    ollama)      deployed_urls+=("http://localhost:3000|Open WebUI") ;;
-                    immich)      deployed_urls+=("http://localhost:2283|Immich") ;;
-                esac
-
                 break
             fi
         done
     done
-
-    # Add deployed service URLs as Firefox bookmarks via policies.json
-    if [ ${#deployed_urls[@]} -gt 0 ]; then
-        info "Adding Docker service bookmarks to Firefox..."
-
-        # Build bookmark JSON entries
-        local bookmarks_json=""
-        for entry in "${deployed_urls[@]}"; do
-            local burl="${entry%%|*}"
-            local btitle="${entry##*|}"
-            if [ -n "$bookmarks_json" ]; then
-                bookmarks_json="${bookmarks_json},"
-            fi
-            bookmarks_json="${bookmarks_json}{\"Title\":\"${btitle}\",\"URL\":\"${burl}\",\"Placement\":\"toolbar\"}"
-        done
-
-        # Inject bookmarks into all deployed policies.json files
-        local policy_dirs=(
-            "/usr/lib/firefox/distribution"
-            "/usr/lib64/firefox/distribution"
-            "/usr/share/firefox/distribution"
-        )
-        for pdir in "${policy_dirs[@]}"; do
-            local pfile="$pdir/policies.json"
-            [ -f "$pfile" ] || continue
-            # Add ManagedBookmarks array via python3
-            sudo python3 -c "
-import json
-with open('$pfile') as f:
-    data = json.load(f)
-bookmarks = json.loads('[${bookmarks_json}]')
-data['policies']['ManagedBookmarks'] = [{'toplevel_name': 'Docker Services'}] + bookmarks
-with open('$pfile', 'w') as f:
-    json.dump(data, f, indent=4)
-" 2>/dev/null || warning "Could not add bookmarks to $pfile"
-        done
-
-        # Open the URLs in Firefox for first-time setup
-        for entry in "${deployed_urls[@]}"; do
-            local burl="${entry%%|*}"
-            # Skip external URLs (zerotier) - only open local services
-            if [[ "$burl" == http://localhost* ]]; then
-                info "Opening ${burl} in Firefox..."
-                xdg-open "$burl" 2>/dev/null &
-            fi
-        done
-    fi
 }
 
 # ─── Install fastfetch ─────────────────────────────────────────────────────────
