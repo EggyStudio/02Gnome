@@ -94,7 +94,7 @@ natural-scroll=false
 
 [org/gnome/shell/extensions/just-perfection]
 keyboard-layout=false
-panel-position=1
+top-panel-position=1
 clock-menu-position=1
 clock-menu-position-offset=6
 events-button=false
@@ -144,6 +144,8 @@ dock-position='BOTTOM'
 dock-fixed=false
 dash-max-icon-size=32
 disable-overview-on-startup=true
+background-color='rgb(0,0,0)'
+custom-background-color=true
 background-opacity=0.80000000000000004
 custom-theme-shrink=true
 height-fraction=0.90000000000000002
