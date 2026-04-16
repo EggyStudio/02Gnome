@@ -1257,24 +1257,51 @@ configure_firefox() {
 
 
 # ─── Pin installed optional apps to favorites ──────────────────────────────────
-# Ordered list of Flatpak app IDs → .desktop file names (pinned in this order)
+# Ordered list: "flatpak_id|rpm_desktop_name(s)"
+# rpm_desktop_name is a comma-separated list of common .desktop filenames
+# (without .desktop suffix) to look for when the app is installed via RPM.
 OPTIONAL_PIN_ORDER=(
     # Entertainment
-    "com.spotify.Client"
-    "com.discordapp.Discord"
-    "org.signal.Signal"
-    "com.valvesoftware.Steam"
-    "org.videolan.VLC"
+    "com.spotify.Client|spotify"
+    "com.discordapp.Discord|discord"
+    "org.signal.Signal|signal-desktop"
+    "com.valvesoftware.Steam|steam"
+    "org.videolan.VLC|vlc"
     # Creative
-    "org.blender.Blender"
-    "org.gimp.GIMP"
-    "com.unity.UnityHub"
+    "org.blender.Blender|blender"
+    "org.gimp.GIMP|gimp"
+    "com.unity.UnityHub|unityhub"
     # Utilities
-    "com.visualstudio.code"
-    "com.jetbrains.Rider"
-    "io.github.shiftey.Desktop"
-    "dev.deedles.Trayscale"
+    "com.visualstudio.code|code"
+    "com.jetbrains.Rider|jetbrains-rider"
+    "io.github.shiftey.Desktop|github-desktop"
+    "dev.deedles.Trayscale|trayscale"
 )
+
+# Find the .desktop file for an app, checking Flatpak first then RPM names.
+# Returns the desktop filename (e.g. "com.spotify.Client.desktop" or "steam.desktop")
+# or empty string if not found.
+_resolve_desktop_file() {
+    local flatpak_id="$1"
+    local rpm_names="$2"
+
+    # Check Flatpak
+    if flatpak list --app --columns=application 2>/dev/null | grep -qx "$flatpak_id"; then
+        echo "${flatpak_id}.desktop"
+        return
+    fi
+
+    # Check RPM / system .desktop files
+    IFS=',' read -ra names <<< "$rpm_names"
+    for name in "${names[@]}"; do
+        for dir in /usr/share/applications /usr/local/share/applications "$HOME/.local/share/applications"; do
+            if [ -f "$dir/${name}.desktop" ]; then
+                echo "${name}.desktop"
+                return
+            fi
+        done
+    done
+}
 
 pin_optional_apps_to_favorites() {
     # Get current favorites
@@ -1295,9 +1322,13 @@ pin_optional_apps_to_favorites() {
 
     local changed=false
 
-    for app_id in "${OPTIONAL_PIN_ORDER[@]}"; do
-        if flatpak list --app --columns=application 2>/dev/null | grep -qx "$app_id"; then
-            local desktop="${app_id}.desktop"
+    for entry in "${OPTIONAL_PIN_ORDER[@]}"; do
+        local flatpak_id="${entry%%|*}"
+        local rpm_names="${entry#*|}"
+        local desktop
+        desktop=$(_resolve_desktop_file "$flatpak_id" "$rpm_names")
+
+        if [ -n "$desktop" ]; then
             if ! echo "$current_favs" | grep -q "'${desktop}'"; then
                 # Append before the closing bracket
                 current_favs="${current_favs%]*}, '${desktop}']"
