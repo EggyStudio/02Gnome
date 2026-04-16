@@ -507,7 +507,14 @@ select_and_install_optional_apps() {
                 local install_type="${target%%:*}"
                 local install_id="${target##*:}"
                 case "$install_type" in
-                    flatpak) install_one_flatpak "$install_id" ;;
+                    flatpak)
+                        install_one_flatpak "$install_id"
+                        # Post-install hooks for specific Flatpaks
+                        if [ "$install_id" = "org.signal.Signal" ]; then
+                            info "Configuring Signal to use GNOME Keyring..."
+                            flatpak override --user --env=SIGNAL_PASSWORD_STORE=gnome-libsecret org.signal.Signal 2>/dev/null || true
+                        fi
+                        ;;
                     script)
                         case "$install_id" in
                             dotnet) install_dotnet ;;
