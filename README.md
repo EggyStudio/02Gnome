@@ -1,15 +1,13 @@
 <h1 align="center" style="text-align:center">GnomeBlueprint</h1>
 <h4 align="center" style="text-align:center">Automate your perfect GNOME desktop in one command.</h4>
 <p align="center" style="text-align:center">Extensions, themes, apps, and settings - all configured interactively.</p>
+<p align="center" style="text-align:center"><strong>⏱️ 10 min Fedora install + 10 min GnomeBlueprint = fully configured desktop in 20 minutes.</strong></p>
 
 <p align="center" style="text-align:center">
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Linux-FCC624">
   <img alt="Desktop" src="https://img.shields.io/badge/Desktop-GNOME-4A86CF">
   <img alt="Shell" src="https://img.shields.io/badge/Shell-Bash-4EAA25">
   <img alt="TUI" src="https://img.shields.io/badge/TUI-gum-FF75B5">
-</p>
-
-<p align="center" style="text-align:center">
   <a href="LICENSE"><img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg"></a>
   <a href="https://deepwiki.com/CanTalat-Yakan/GnomeBlueprint"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
 </p>
