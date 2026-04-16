@@ -226,6 +226,13 @@ DOCKER_SERVICES=(
     "Immich|immich"
 )
 
+# Web URLs for Docker services (used to create clickable .desktop links)
+declare -A DOCKER_SERVICE_URLS=(
+    ["zerotierone"]="https://my.zerotier.com"
+    ["ollama"]="http://localhost:3000"
+    ["immich"]="http://localhost:2283"
+)
+
 select_and_install_docker_services() {
     echo ""
     info "Choose Docker Compose services to deploy (optional)."
@@ -302,6 +309,19 @@ select_and_install_docker_services() {
                 # Remove NVIDIA GPU reservation if no NVIDIA GPU is present
                 if ! lspci | grep -qi 'nvidia'; then
                     sed -i '/deploy:/,/capabilities: \[gpu\]/d' "$target_dir/docker-compose.yml" 2>/dev/null || true
+                fi
+
+                # Create a clickable web link if the service has a URL
+                if [ -n "${DOCKER_SERVICE_URLS[$dir_name]+x}" ]; then
+                    local url="${DOCKER_SERVICE_URLS[$dir_name]}"
+                    cat > "$target_dir/Open ${label}.desktop" <<EOF
+[Desktop Entry]
+Type=Link
+Name=Open ${label}
+Icon=web-browser
+URL=${url}
+EOF
+                    chmod +x "$target_dir/Open ${label}.desktop"
                 fi
 
                 # Start the service
