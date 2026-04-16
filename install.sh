@@ -1204,7 +1204,14 @@ ask_download_wallpapers() {
         # Set the Wallpaper Slideshow extension to use the preferred folder
         local slideshow_dir="$WALLPAPER_DIR/walls/m-26.jp"
         if [ -d "$slideshow_dir" ]; then
-            dconf write /org/gnome/shell/extensions/azwallpaper/slideshow-directory "'$slideshow_dir'" 2>/dev/null || true
+            # The extension compiles its own GSettings schema on install
+            local ext_schema_dir="$HOME/.local/share/gnome-shell/extensions/azwallpaper@azwallpaper.gitlab.com/schemas"
+            if [ -d "$ext_schema_dir" ]; then
+                gsettings --schemadir "$ext_schema_dir" set org.gnome.shell.extensions.azwallpaper slideshow-directory "$slideshow_dir" 2>/dev/null || true
+            else
+                # Fallback: write directly via dconf
+                dconf write /org/gnome/shell/extensions/azwallpaper/slideshow-directory "'$slideshow_dir'" 2>/dev/null || true
+            fi
             info "Wallpaper Slideshow set to $slideshow_dir"
         fi
     fi
