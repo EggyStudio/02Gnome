@@ -318,14 +318,11 @@ select_and_install_docker_services() {
                 local url
                 url=$(get_docker_service_url "$dir_name")
                 if [ -n "$url" ]; then
-                    cat > "$target_dir/Open ${label}.desktop" <<EOF
-[Desktop Entry]
-Type=Link
-Name=Open ${label}
-Icon=web-browser
-URL=${url}
+                    cat > "$target_dir/${dir_name}.sh" <<EOF
+#!/bin/bash
+xdg-open "${url}"
 EOF
-                    chmod +x "$target_dir/Open ${label}.desktop"
+                    chmod +x "$target_dir/${dir_name}.sh"
                 fi
 
                 # Start the service
@@ -1705,7 +1702,7 @@ ask_uninstall_bloat() {
     info "Removing GNOME bloat..."
 
     for entry in "${GNOME_BLOAT_APPS[@]}"; do
-        local flatpak_id="${entry%%|*}"
+        local flatpak_id="${entry%%|}"
         local rest="${entry#*|}"
         local dnf_pkg="${rest%%|*}"
         rest="${rest#*|}"
