@@ -226,16 +226,6 @@ DOCKER_SERVICES=(
     "Immich|immich"
 )
 
-# Web URLs for Docker services (used to create clickable .desktop links)
-get_docker_service_url() {
-    case "$1" in
-        zerotierone) echo "https://my.zerotier.com" ;;
-        ollama)      echo "http://localhost:3000" ;;
-        immich)      echo "http://localhost:2283" ;;
-        *)           echo "" ;;
-    esac
-}
-
 select_and_install_docker_services() {
     echo ""
     info "Choose Docker Compose services to deploy (optional)."
@@ -314,23 +304,6 @@ select_and_install_docker_services() {
                     sed -i '/deploy:/,/capabilities: \[gpu\]/d' "$target_dir/docker-compose.yml" 2>/dev/null || true
                 fi
 
-                # Create a clickable web link if the service has a URL
-                local url
-                url=$(get_docker_service_url "$dir_name")
-                if [ -n "$url" ]; then
-                    local desktop_file="$target_dir/${dir_name}.desktop"
-                    cat > "$desktop_file" <<EOF
-[Desktop Entry]
-Type=Application
-Name=${label}
-Icon=web-browser
-Exec=xdg-open ${url}
-Terminal=false
-EOF
-                    # Mark as trusted so Nautilus runs it on double-click
-                    chmod +x "$desktop_file"
-                    gio set "$desktop_file" metadata::trusted true 2>/dev/null || true
-                fi
 
                 # Start the service
                 info "Starting ${label}..."
