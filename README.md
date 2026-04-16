@@ -51,7 +51,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | 10 | Configures **Nautilus, Terminal, and Text Editor** defaults |
 | 11 | Optionally downloads a **wallpaper collection** |
 | 12 | Optionally **removes GNOME bloat** (Boxes, Characters, Weather, LibreOffice, etc.) |
-| 13 | Lets you pick **optional apps** (Spotify, Discord, Steam, VS Code, OpenCode, etc.) |
+| 13 | Lets you pick **optional apps** (Discord, Steam, VS Code, OpenCode, etc.) |
 | 14 | **Pins installed apps** to the dock (Firefox first, Files/Terminal/Software last) |
 | 15 | **Resets the app grid** to a single flat alphabetical layout |
 | 16 | Detects **NVIDIA GPU** and installs proprietary drivers (`akmod-nvidia`, CUDA, VA-API) |
@@ -96,7 +96,8 @@ Pick any combination from the TUI menu:
 
 | Category | Application | Source |
 |---|---|---|
-| Entertainment | Spotify, Discord, Signal, Steam, VLC | Flatpak |
+| Entertainment | Steam | RPM (via RPM Fusion) |
+| Entertainment | Discord, Signal, VLC | Flatpak |
 | Creative | Blender, GIMP, Unity Hub | Flatpak |
 | Utilities | VS Code, JetBrains Rider, GitHub Desktop, Trayscale | Flatpak |
 | Developer | OpenCode (AI coding agent) | Script |

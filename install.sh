@@ -413,16 +413,48 @@ restart_gnome_shell() {
     fi
 }
 
+# ─── RPM Fusion setup ────────────────────────────────────────────────────────────
+ensure_rpmfusion() {
+    if ! command -v dnf &>/dev/null; then
+        return 1
+    fi
+    if dnf repolist 2>/dev/null | grep -q rpmfusion; then
+        return 0
+    fi
+    info "Enabling RPM Fusion repositories..."
+    local fedora_ver
+    fedora_ver=$(rpm -E %fedora 2>/dev/null) || return 1
+    sudo dnf install -y \
+        "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-${fedora_ver}.noarch.rpm" \
+        "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${fedora_ver}.noarch.rpm" \
+        || { warning "Could not enable RPM Fusion."; return 1; }
+}
+
+# ─── Install a single RPM package (enables RPM Fusion if needed) ────────────────
+install_one_rpm() {
+    local pkg="$1"
+    if rpm -q "$pkg" &>/dev/null; then
+        info "$pkg is already installed."
+        return
+    fi
+    info "Installing $pkg via RPM..."
+    # Try direct install first; if it fails, enable RPM Fusion and retry
+    if ! sudo dnf install -y "$pkg" 2>/dev/null; then
+        ensure_rpmfusion
+        sudo dnf install -y "$pkg" || warning "Could not install $pkg via dnf."
+    fi
+}
+
 # ─── Optional applications (interactive chooser) ───────────────────────────────
 # Format: "Display Label|type:identifier"
 #   type = flatpak  →  Flathub app ID
 #   type = script   →  custom installer function name
+#   type = rpm      →  RPM package name (enables RPM Fusion if needed)
 OPTIONAL_APPS=(
     # Entertainment
-    "Spotify|flatpak:com.spotify.Client"
+    "Steam|rpm:steam"
     "Discord|flatpak:com.discordapp.Discord"
     "Signal|flatpak:org.signal.Signal"
-    "Steam|flatpak:com.valvesoftware.Steam"
     "VLC|flatpak:org.videolan.VLC"
     # Creative
     "Blender|flatpak:org.blender.Blender"
@@ -554,6 +586,9 @@ select_and_install_optional_apps() {
                             opencode) install_opencode ;;
                             *) warning "Unknown install script: $install_id" ;;
                         esac
+                        ;;
+                    rpm)
+                        install_one_rpm "$install_id"
                         ;;
                     *) warning "Unknown install type: $install_type" ;;
                 esac
@@ -831,6 +866,7 @@ configure_nautilus() {
     # Star Steam library folder if Steam is installed
     local steam_folder="/home/${current_user}/.steam/steam/steamapps/common"
     if flatpak list --app --columns=application 2>/dev/null | grep -qx "com.valvesoftware.Steam" \
+       || rpm -q steam &>/dev/null \
        || [ -d "$steam_folder" ]; then
         if [ -d "$steam_folder" ]; then
             gio set -t stringv "$steam_folder" metadata::xdg-tags "starred" 2>/dev/null \
@@ -1262,7 +1298,6 @@ configure_firefox() {
 # (without .desktop suffix) to look for when the app is installed via RPM.
 OPTIONAL_PIN_ORDER=(
     # Entertainment
-    "com.spotify.Client|spotify"
     "com.discordapp.Discord|discord"
     "org.signal.Signal|signal-desktop"
     "com.valvesoftware.Steam|steam"
@@ -1279,7 +1314,7 @@ OPTIONAL_PIN_ORDER=(
 )
 
 # Find the .desktop file for an app, checking Flatpak first then RPM names.
-# Returns the desktop filename (e.g. "com.spotify.Client.desktop" or "steam.desktop")
+# Returns the desktop filename (e.g. "com.discordapp.Discord.desktop" or "steam.desktop")
 # or empty string if not found.
 _resolve_desktop_file() {
     local flatpak_id="$1"
@@ -1695,6 +1730,7 @@ install_nvidia_drivers() {
     fi
 
     if [ "$do_nvidia" = true ]; then
+        ensure_rpmfusion
         info "Installing NVIDIA drivers (akmod-nvidia + CUDA + VA-API)..."
         sudo dnf install -y akmod-nvidia || warning "Failed to install akmod-nvidia."
         sudo dnf install -y xorg-x11-drv-nvidia-cuda || warning "Failed to install nvidia-cuda."
