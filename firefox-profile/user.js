@@ -42,6 +42,10 @@ user_pref("gnomeTheme.oledBlack", false);
 user_pref("gnomeTheme.noThemedIcons", false);
 user_pref("gnomeTheme.bookmarksOnFullscreen", false);
 
+// ─── Startup ──────────────────────────────────────────────────────────────────
+// Open previous windows and tabs
+user_pref("browser.startup.page", 3);
+
 // ─── New Tab Page ─────────────────────────────────────────────────────────────
 user_pref("browser.startup.homepage", "about:home");
 user_pref("browser.newtabpage.activity-stream.feeds.topsites", false);
