@@ -1298,9 +1298,9 @@ configure_firefox() {
 # (without .desktop suffix) to look for when the app is installed via RPM.
 OPTIONAL_PIN_ORDER=(
     # Entertainment
+    "com.valvesoftware.Steam|steam"
     "com.discordapp.Discord|discord"
     "org.signal.Signal|signal-desktop"
-    "com.valvesoftware.Steam|steam"
     "org.videolan.VLC|vlc"
     # Creative
     "org.blender.Blender|blender"
