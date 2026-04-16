@@ -1559,7 +1559,14 @@ BANNER
 
     # Re-apply dconf settings after extensions are installed
     # (freshly installed extensions may reset to defaults on first enable)
+    sleep 3
     import_gnome_settings "$profile"
+    # Apply panel-position explicitly for desktop (Just Perfection may ignore dconf load)
+    if [ "$profile" = "desktop" ]; then
+        dconf write /org/gnome/shell/extensions/just-perfection/panel-position 1 2>/dev/null || true
+        dconf write /org/gnome/shell/extensions/just-perfection/clock-menu-position 1 2>/dev/null || true
+        dconf write /org/gnome/shell/extensions/just-perfection/clock-menu-position-offset 8 2>/dev/null || true
+    fi
 
     # 7. Adwaita theme setup (adw-gtk3 + Flatpak overrides)
     setup_themes
