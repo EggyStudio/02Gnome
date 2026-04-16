@@ -42,7 +42,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | 1 | Installs **gum** for a nice TUI experience |
 | 2 | Runs **system update** (`dnf update` + `flatpak update`) |
 | 3 | Asks you to pick a profile: **Desktop** or **Laptop** |
-| 4 | Installs **git**, **Docker**, and sets up **Flatpak + Flathub** |
+| 4 | Installs **git**, **Docker**, **Tailscale**, and sets up **Flatpak + Flathub** |
 | 5 | Imports **profile-specific dconf settings** and runs the profile setup script |
 | 6 | Installs **essential Flatpak apps** and **GNOME Shell extensions** |
 | 7 | Sets up **Adwaita themes** and asks for **Oled (pure-black) preference** |

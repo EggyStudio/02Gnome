@@ -199,6 +199,25 @@ install_docker() {
     info "Docker installed. Log out and back in for group membership to take effect."
 }
 
+# ─── Install Tailscale ──────────────────────────────────────────────────────────
+
+install_tailscale() {
+    if command -v tailscale &>/dev/null; then
+        info "Tailscale is already installed."
+        return
+    fi
+
+    info "Installing Tailscale..."
+
+    curl -fsSL https://tailscale.com/install.sh | bash \
+        || { warning "Tailscale install failed - skipping."; return; }
+
+    sudo systemctl enable --now tailscaled 2>/dev/null || true
+    sudo tailscale up
+
+    info "Tailscale installed and started."
+}
+
 # ─── Install fastfetch ─────────────────────────────────────────────────────────
 install_fastfetch() {
     if command -v fastfetch &>/dev/null; then
@@ -1628,6 +1647,7 @@ BANNER
     clone_repo
     install_flatpak
     install_docker
+    install_tailscale
     install_fastfetch
 
     # 5. Apply profile-specific dconf settings first (base layer)
