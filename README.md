@@ -76,8 +76,12 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | ArcMenu | `arcmenu@arcmenu.com` |
 | Clipboard History | `clipboard-history@alexsaveau.dev` |
 | Dash to Dock | `dash-to-dock@micxgx.gmail.com` |
+| Gtk4 Desktop Icons NG (DING) | `gtk4-ding@smedius.gitlab.com` |
 | Just Perfection | `just-perfection-desktop@just-perfection` |
 | Panel Corners | `panel-corners@aunetx` |
+| PiP on top | `pip-on-top@rafostar.github.com` |
+| Quick Settings Audio Panel | `quick-settings-audio-panel@rayzeq.github.io` |
+| Restart To | `restartto@tiagoporsch.github.io` |
 | User Themes | `user-theme@gnome-shell-extensions.gcampax.github.com` |
 | Wallpaper Slideshow | `azwallpaper@azwallpaper.gitlab.com` |
 
