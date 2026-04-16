@@ -227,11 +227,14 @@ DOCKER_SERVICES=(
 )
 
 # Web URLs for Docker services (used to create clickable .desktop links)
-declare -A DOCKER_SERVICE_URLS=(
-    ["zerotierone"]="https://my.zerotier.com"
-    ["ollama"]="http://localhost:3000"
-    ["immich"]="http://localhost:2283"
-)
+get_docker_service_url() {
+    case "$1" in
+        zerotierone) echo "https://my.zerotier.com" ;;
+        ollama)      echo "http://localhost:3000" ;;
+        immich)      echo "http://localhost:2283" ;;
+        *)           echo "" ;;
+    esac
+}
 
 select_and_install_docker_services() {
     echo ""
@@ -312,8 +315,9 @@ select_and_install_docker_services() {
                 fi
 
                 # Create a clickable web link if the service has a URL
-                if [ -n "${DOCKER_SERVICE_URLS[$dir_name]+x}" ]; then
-                    local url="${DOCKER_SERVICE_URLS[$dir_name]}"
+                local url
+                url=$(get_docker_service_url "$dir_name")
+                if [ -n "$url" ]; then
                     cat > "$target_dir/Open ${label}.desktop" <<EOF
 [Desktop Entry]
 Type=Link
