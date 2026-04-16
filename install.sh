@@ -996,6 +996,7 @@ configure_firefox() {
     local profile_dirs=()
     local search_roots=(
         "$HOME/.mozilla/firefox"
+        "$HOME/.config/mozilla/firefox"
         "$HOME/.var/app/org.mozilla.firefox/.mozilla/firefox"
         "$HOME/.var/app/org.mozilla.firefox/config/mozilla/firefox"
         "$HOME/snap/firefox/common/.mozilla/firefox"
