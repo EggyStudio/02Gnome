@@ -93,8 +93,9 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | PiP on top | `pip-on-top@rafostar.github.com` |
 | Quick Settings Audio Panel | `quick-settings-audio-panel@rayzeq.github.io` |
 | Restart To | `restartto@tiagoporsch.github.io` |
-| Rounded Window Corners Reborn | `rounded-window-corners@fxgn` | *Disabled - not yet compatible with GNOME 50* |
+| Rounded Window Corners Reborn | `rounded-window-corners@fxgn` | *Installed but disabled by default* |
 | User Themes | `user-theme@gnome-shell-extensions.gcampax.github.com` |
+| Vitals | `Vitals@CoreCoding.com` | *Installed but disabled by default* |
 | Wallpaper Slideshow | `azwallpaper@azwallpaper.gitlab.com` |
 
 > Extensions that don't list the current GNOME Shell version are **automatically patched** via `metadata.json` so they load without waiting for an upstream update.
