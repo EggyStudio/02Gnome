@@ -323,6 +323,12 @@ select_and_install_docker_services() {
 create_docker_web_apps() {
     local created=false
 
+    # Tailscale web app (always created if tailscale is installed)
+    if command -v tailscale &>/dev/null; then
+        _create_web_app_desktop "Tailscale" "https://tailscale.com/" "tailscale"
+        created=true
+    fi
+
     for svc in "${INSTALLED_DOCKER_SERVICES[@]+"${INSTALLED_DOCKER_SERVICES[@]}"}"; do
         case "$svc" in
             immich)
@@ -359,6 +365,7 @@ _create_web_app_desktop() {
         immich)    src_icon="$DOTFILES_DIR/icons/immich.png" ;;
         open-webui) src_icon="$DOTFILES_DIR/icons/open-webui-light.png" ;;
         zerotier)  src_icon="$DOTFILES_DIR/icons/zerotier.png" ;;
+        tailscale) src_icon="$DOTFILES_DIR/icons/tailscale-light.png" ;;
     esac
 
     if [ -n "$src_icon" ] && [ -f "$src_icon" ]; then
