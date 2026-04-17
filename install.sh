@@ -321,32 +321,52 @@ select_and_install_docker_services() {
 
 # ─── Create web app shortcuts for Docker services ───────────────────────────────
 create_docker_web_apps() {
-    local dominated=false
+    local created=false
 
     for svc in "${INSTALLED_DOCKER_SERVICES[@]+"${INSTALLED_DOCKER_SERVICES[@]}"}"; do
         case "$svc" in
             immich)
-                _create_web_app_desktop "Immich" "http://localhost:2283" "camera-photo"
-                dominated=true
+                _create_web_app_desktop "Immich" "http://localhost:2283" "immich"
+                created=true
                 ;;
             ollama)
-                _create_web_app_desktop "Open WebUI" "http://localhost:3000" "preferences-system-chat"
-                dominated=true
+                _create_web_app_desktop "Open WebUI" "http://localhost:3000" "open-webui"
+                created=true
+                ;;
+            zerotierone)
+                _create_web_app_desktop "ZeroTier" "https://my.zerotier.com" "zerotier"
+                created=true
                 ;;
         esac
     done
 
-    if [ "$dominated" = true ]; then
+    if [ "$created" = true ]; then
         info "Web app shortcuts created. You can also manage them in Web App Hub."
     fi
 }
 
 _create_web_app_desktop() {
-    local name="$1" url="$2" icon="$3"
+    local name="$1" url="$2" icon_name="$3"
     local app_id
     app_id=$(echo "$name" | tr '[:upper:] ' '[:lower:]-')
-    local desktop_file="$HOME/.local/share/applications/webapp-${app_id}.desktop"
 
+    # Install icon to local icon directory
+    local icon_dir="$HOME/.local/share/icons/hicolor/256x256/apps"
+    mkdir -p "$icon_dir"
+
+    local src_icon=""
+    case "$icon_name" in
+        immich)    src_icon="$DOTFILES_DIR/icons/immich.png" ;;
+        open-webui) src_icon="$DOTFILES_DIR/icons/open-webui-light.png" ;;
+        zerotier)  src_icon="$DOTFILES_DIR/icons/zerotier.png" ;;
+    esac
+
+    if [ -n "$src_icon" ] && [ -f "$src_icon" ]; then
+        cp -f "$src_icon" "$icon_dir/${icon_name}.png"
+        gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
+    fi
+
+    local desktop_file="$HOME/.local/share/applications/webapp-${app_id}.desktop"
     mkdir -p "$HOME/.local/share/applications"
 
     cat > "$desktop_file" << EOF
@@ -356,7 +376,7 @@ Type=Application
 Terminal=false
 Name=${name}
 Exec=xdg-open ${url}
-Icon=${icon}
+Icon=${icon_name}
 Categories=Network;WebBrowser;
 StartupNotify=true
 EOF
