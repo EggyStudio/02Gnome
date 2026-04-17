@@ -222,9 +222,9 @@ install_tailscale() {
 # ─── Docker Compose services (interactive chooser) ─────────────────────────────
 
 DOCKER_SERVICES=(
-    "ZeroTier One|zerotierone"
-    "Ollama + Open WebUI|ollama"
     "Immich|immich"
+    "Ollama + Open WebUI|ollama"
+    "ZeroTier One|zerotierone"
 )
 
 select_and_install_docker_services() {

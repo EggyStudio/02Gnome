@@ -55,7 +55,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | 13 | Optionally downloads a **wallpaper collection** |
 | 14 | Optionally **removes GNOME bloat** (Boxes, Calendar, Camera, Clocks, Characters, Weather, LibreOffice, etc.) |
 | 15 | Lets you pick **optional apps** (Discord, Steam, VS Code, OpenCode, etc.) |
-| 16 | Lets you pick **Docker Compose services** (ZeroTier, Ollama + Open WebUI, Immich) |
+| 16 | Lets you pick **Docker Compose services** (Immich, Ollama + Open WebUI, ZeroTier) |
 | 17 | Creates **web app shortcuts** for installed Docker services and Tailscale |
 | 18 | **Pins installed apps** to the dock (Firefox first, Files/Terminal/Software last) |
 | 19 | Registers **OpenCode shortcut** (`Super+C`) if installed |
@@ -118,11 +118,11 @@ Installed optional apps are automatically **pinned to the dock**.
 
 Pick any combination from the TUI menu - selected services are copied to your home directory and started automatically:
 
-| Service | Directory | Address | Description |
-|---|---|---|---|
-| ZeroTier One | `~/zerotierone` | Host network (see [central.zerotier.com](https://central.zerotier.com)) | Peer-to-peer VPN mesh network |
-| Ollama + Open WebUI | `~/ollama` | http://localhost:3000 | Local LLM inference with web chat UI |
-| Immich | `~/immich` | http://localhost:2283 | Self-hosted photo & video management |
+| Service | Directory | Address                                              | Description |
+|---|---|------------------------------------------------------|---|
+| Immich | `~/immich` | http://localhost:2283                                | Self-hosted photo & video management |
+| Ollama + Open WebUI | `~/ollama` | http://localhost:3000                                | Local LLM inference with web chat UI |
+| ZeroTier One | `~/zerotierone` | [central.zerotier.com](https://central.zerotier.com) | Peer-to-peer VPN mesh network |
 
 Each directory contains a `docker-compose.yml` and a `README.md` with usage instructions.
 
@@ -178,20 +178,20 @@ RPM removal runs a **dry-run first** - if removing a package would cascade into 
 GnomeBlueprint/
 ├── install.sh                  # Root installer (curl | bash)
 ├── docker/
-│   ├── zerotierone/
-│   │   ├── docker-compose.yml  # ZeroTier One container
+│   ├── immich/
+│   │   ├── docker-compose.yml  # Immich photo management stack
+│   │   ├── env                 # Immich configuration (copied as .env)
 │   │   └── README.md
 │   ├── ollama/
 │   │   ├── docker-compose.yml  # Ollama + Open WebUI containers
 │   │   └── README.md
-│   └── immich/
-│       ├── docker-compose.yml  # Immich photo management stack
-│       ├── env                 # Immich configuration (copied as .env)
+│   └── zerotierone/
+│       ├── docker-compose.yml  # ZeroTier One container
 │       └── README.md
-├── firefox-profile/
+├── firefox/
 │   ├── policies.json           # Enterprise policies (search engine, toolbar)
 │   └── user.js                 # Privacy, theming, and UI settings for Firefox
-├── gnome-settings/
+├── gnome/
 │   ├── desktop.dconf           # dconf settings for desktop profile
 │   └── laptop.dconf            # dconf settings for laptop profile
 ├── icons/
