@@ -130,8 +130,8 @@ Each directory contains a `docker-compose.yml` and a `README.md` with usage inst
 
 ```bash
 docker compose up -d      # Start (detached)
-docker compose down        # Stop
-docker compose pull        # Update to latest version
+docker compose down       # Stop
+docker compose pull       # Update to latest version
 docker compose up -d      # Restart with new images
 ```
 
@@ -143,28 +143,20 @@ docker compose up -d      # Restart with new images
 - No touchpad natural scroll / tap-to-click
 - `Super+D` show desktop, `Super+E` files, `Super+T` terminal, `Super+Space` ArcMenu runner
 
+![screenshot-desktop.png](.github/assets/screenshot-desktop.png)
+
 ## Laptop Profile
 
-- Panel at the **top** (default), clock in the **center**
+- Panel at the **top**, clock in the **center**
 - Dynamic workspaces
 - Battery percentage shown, ambient brightness enabled
 - Lid close → suspend (resumes instantly on open)
 - Tap-to-click, natural scroll, two-finger scrolling
 - Same keyboard shortcuts as Desktop
 
-## Theming
-
-### Desktop
-
-- Panel at the **bottom** with clock on the **right**
-
-![screenshot-desktop.png](.github/assets/screenshot-desktop.png)
-
-### Laptop
-
-- Panel at the **top** (default) with clock in the **center**
-
 ![screenshot-laptop.png](.github/assets/screenshot-laptop.png)
+
+## Theming
 
 - **adw-gtk3-dark** installed via dnf - makes GTK3 apps match GTK4 Adwaita
 - Flatpak overrides applied for `gtk-4.0` and `gtk-3.0` theme access
