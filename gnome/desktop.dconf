@@ -33,6 +33,7 @@ workspaces-only-on-primary=true
 [org/gnome/shell]
 favorite-apps=['org.mozilla.firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Ptyxis.desktop', 'org.gnome.Software.desktop']
 enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com', 'arcmenu@arcmenu.com', 'clipboard-history@alexsaveau.dev', 'dash-to-dock@micxgx.gmail.com', 'gtk4-ding@smedius.gitlab.com', 'just-perfection-desktop@just-perfection', 'logomenu@aryan_k', 'panel-corners@aunetx', 'pip-on-top@rafostar.github.com', 'quick-settings-audio-panel@rayzeq.github.io', 'restartto@tiagoporsch.github.io', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'azwallpaper@azwallpaper.gitlab.com']
+disabled-extensions=['Vitals@CoreCoding.com', 'rounded-window-corners@fxgn']
 
 [org/gnome/desktop/app-folders]
 folder-children=@as []
@@ -176,13 +177,12 @@ menu-button-extensions-app='com.mattjakeman.ExtensionManager.desktop'
 [org/gnome/shell/extensions/panel-corners]
 panel-corners=true
 
-# TODO: Re-enable when compatible with GNOME 50+
-# [org/gnome/shell/extensions/rounded-window-corners-reborn]
-# border-width=1
-# settings-version=uint32 7
-# skip-libadwaita-app=false
-# focused-shadow={'horizontalOffset': 0, 'verticalOffset': 0, 'blurOffset': 0, 'spreadRadius': 0, 'opacity': 0}
-# unfocused-shadow={'horizontalOffset': 0, 'verticalOffset': 0, 'blurOffset': 0, 'spreadRadius': 0, 'opacity': 0}
+[org/gnome/shell/extensions/rounded-window-corners-reborn]
+border-width=1
+settings-version=uint32 7
+skip-libadwaita-app=false
+focused-shadow={'horizontalOffset': 0, 'verticalOffset': 0, 'blurOffset': 0, 'spreadRadius': 0, 'opacity': 0}
+unfocused-shadow={'horizontalOffset': 0, 'verticalOffset': 0, 'blurOffset': 0, 'spreadRadius': 0, 'opacity': 0}
 
 [org/gnome/shell/extensions/gtk4-ding]
 show-home=false
@@ -191,3 +191,21 @@ show-volumes=false
 
 [org/gnome/shell/extensions/user-theme]
 name=''
+
+[org/gnome/shell/extensions/vitals]
+alphabetize=true
+fixed-widths=false
+hide-icons=false
+hide-zeros=true
+hot-sensors=['__temperature_avg__', '_memory_available_']
+icon-style=1
+menu-centered=true
+position-in-panel=0
+show-battery=true
+show-gpu=true
+show-network=true
+show-system=true
+show-temperature=true
+show-voltage=true
+update-time=3
+use-higher-precision=false

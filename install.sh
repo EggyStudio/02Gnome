@@ -475,10 +475,15 @@ GNOME_EXTENSIONS=(
     "pip-on-top@rafostar.github.com|PiP on top"
     "quick-settings-audio-panel@rayzeq.github.io|Quick Settings Audio Panel"
     "restartto@tiagoporsch.github.io|Restart To"
-    # TODO: Re-enable when compatible with GNOME 50+
-    # "rounded-window-corners@fxgn|Rounded Window Corners Reborn"
     "user-theme@gnome-shell-extensions.gcampax.github.com|User Themes"
     "azwallpaper@azwallpaper.gitlab.com|Wallpaper Slideshow"
+)
+
+# Extensions to install but keep disabled by default
+# Format: "uuid|Human-readable name"
+GNOME_EXTENSIONS_DISABLED=(
+    "rounded-window-corners@fxgn|Rounded Window Corners Reborn"
+    "Vitals@CoreCoding.com|Vitals"
 )
 
 # ─── Patch extension metadata.json with current GNOME Shell version ─────────────
@@ -515,13 +520,17 @@ if sv not in versions:
 }
 
 install_gnome_extension() {
-    local uuid="$1" name="$2"
+    local uuid="$1" name="$2" enable_after="${3:-true}"
 
-    # Already installed - patch metadata and make sure it is enabled
+    # Already installed - patch metadata and ensure correct state
     if gnome-extensions list 2>/dev/null | grep -qx "$uuid"; then
         patch_extension_metadata "$uuid"
-        gnome-extensions enable "$uuid" 2>/dev/null || true
-        info "$name is already installed - ensured enabled."
+        if [ "$enable_after" = "true" ]; then
+            gnome-extensions enable "$uuid" 2>/dev/null || true
+            info "$name is already installed - ensured enabled."
+        else
+            info "$name is already installed."
+        fi
         return
     fi
 
@@ -568,9 +577,14 @@ install_gnome_extension() {
     # Patch metadata.json so the extension loads on the current Shell version
     patch_extension_metadata "$uuid"
 
-    # Enable (may require a Shell restart to take full effect)
-    gnome-extensions enable "$uuid" 2>/dev/null || \
-        warning "Installed $name but could not enable it - enable manually via Extension Manager."
+    # Enable or disable based on preference
+    if [ "$enable_after" = "true" ]; then
+        gnome-extensions enable "$uuid" 2>/dev/null || \
+            warning "Installed $name but could not enable it - enable manually via Extension Manager."
+    else
+        gnome-extensions disable "$uuid" 2>/dev/null || true
+        info "$name installed (disabled by default)."
+    fi
 
     info "$name installed successfully."
 }
@@ -586,7 +600,12 @@ install_gnome_extensions() {
     for entry in "${GNOME_EXTENSIONS[@]}"; do
         local uuid="${entry%%|*}"
         local name="${entry##*|}"
-        install_gnome_extension "$uuid" "$name"
+        install_gnome_extension "$uuid" "$name" true
+    done
+    for entry in "${GNOME_EXTENSIONS_DISABLED[@]}"; do
+        local uuid="${entry%%|*}"
+        local name="${entry##*|}"
+        install_gnome_extension "$uuid" "$name" false
     done
     info "GNOME Shell extensions installed."
 }
