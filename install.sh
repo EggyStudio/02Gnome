@@ -807,7 +807,7 @@ import_gnome_settings() {
     fi
 
     info "Importing GNOME settings for profile '${profile}'..."
-    dconf load / < "$dconf_file"
+    sed "s|DOTFILES_DIR|${DOTFILES_DIR}|g" "$dconf_file" | dconf load /
     info "GNOME settings imported successfully."
 }
 
