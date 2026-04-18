@@ -1022,7 +1022,7 @@ system_update() {
 
     if command -v flatpak &>/dev/null; then
         info "Updating Flatpak applications..."
-        flatpak update -y || warning "flatpak update encountered an error."
+        flatpak update -y --noninteractive || warning "flatpak update encountered an error."
     fi
 }
 
@@ -2255,7 +2255,7 @@ final_cleanup() {
     # ── Flatpak cleanup ─────────────────────────────────────────────────────────
     if command -v flatpak &>/dev/null; then
         info "Updating Flatpak applications..."
-        flatpak update -y || warning "flatpak update encountered an error."
+        flatpak update -y --noninteractive || warning "flatpak update encountered an error."
 
         info "Removing unused Flatpak runtimes..."
         flatpak uninstall --unused -y 2>/dev/null || true
