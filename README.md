@@ -5,7 +5,7 @@ Automate your perfect GNOME desktop in one command.<br>Extensions, themes, apps,
 <p align="center" style="text-align:center">
 20 minutes is all it takes to go from zero to a custom Fedora environment using GnomeBlueprint.
 <br><em>
-Works on traditional Fedora Workstation and atomic/immutable variants (Silverblue, Bazzite, Kinoite).
+Works on Fedora Workstation and atomic variants (Silverblue, Bazzite), as well as other GNOME-based distros (Nobara, Ubuntu, Arch, etc.).
 </em></p>
 
 <p align="center" style="text-align:center">
@@ -16,6 +16,12 @@ Works on traditional Fedora Workstation and atomic/immutable variants (Silverblu
   <a href="LICENSE"><img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg"></a>
   <a href="https://deepwiki.com/CanTalat-Yakan/GnomeBlueprint"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
 </p>
+
+## Recommended Base Install
+
+Download [**Fedora Workstation 44**](https://fedoraproject.org/workstation/download/) and flash it to a USB drive with [**Fedora Media Writer**](https://github.com/FedoraQt/MediaWriter) - a single tool that downloads the ISO and creates a bootable USB in a few clicks. Available on Windows, macOS, and Linux.
+
+> For atomic/immutable variants, grab [Silverblue](https://fedoraproject.org/silverblue/download/) or [Bazzite](https://bazzite.gg/) instead.
 
 ## Quick Installation
 
@@ -180,7 +186,7 @@ RPM removal runs a **dry-run first** - if removing a package would cascade into 
 
 ## Atomic / Immutable Fedora Support
 
-GnomeBlueprint automatically detects atomic Fedora variants (Silverblue, Bazzite, Kinoite, etc.) via `/run/ostree-booted` and adapts accordingly:
+GnomeBlueprint automatically detects atomic Fedora variants (Silverblue, Bazzite, etc.) via `/run/ostree-booted` and adapts accordingly:
 
 | Area | Traditional Fedora | Atomic Fedora |
 |------|-------------------|---------------|

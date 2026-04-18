@@ -54,7 +54,7 @@ pkg_remove() {
             rpm-ostree uninstall -y "$pkg" 2>/dev/null \
                 || warning "Could not remove $pkg via rpm-ostree."
         elif rpm -q "$pkg" &>/dev/null 2>&1; then
-            # Package is in the base image — use override remove
+            # Package is in the base image - use override remove
             info "Overriding base package: $pkg ($label)..."
             rpm-ostree override remove "$pkg" 2>/dev/null \
                 || warning "Could not override-remove $pkg (may be required by base image)."
