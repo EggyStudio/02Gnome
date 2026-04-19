@@ -151,6 +151,7 @@ docker compose up -d      # Restart with new images
 ## Desktop Profile
 
 - Panel at **bottom**, clock on the **right**
+- Notification banners in the **bottom-right** corner
 - Dynamic workspaces
 - Blank screen: never / no idle dim
 - No touchpad natural scroll / tap-to-click
@@ -232,6 +233,7 @@ GnomeBlueprint/
 │   ├── immich.png              # Immich web app icon
 │   ├── open-webui-light.png    # Open WebUI web app icon
 │   ├── tailscale-light.png     # Tailscale web app icon
+│   ├── tux-logo.svg            # Tux (Linux) logo icon
 │   └── zerotier.png            # ZeroTier web app icon
 ├── profiles/
 │   ├── desktop/
