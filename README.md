@@ -90,7 +90,7 @@ RPM removal runs a **dry-run first** - if removing a package would cascade into 
 ## What the installer does
 
 | Step | Description |
-|------|-------------|
+|---|---|
 | 1 | Installs **gum** for a nice TUI experience |
 | 2 | Runs **system update** (`dnf update` + `flatpak update`) |
 | 3 | Asks you to pick a profile: **Desktop** or **Laptop** |
@@ -157,12 +157,12 @@ Pick any combination from the TUI menu:
 
 | Category | Application | Source |
 |---|---|---|
-| Entertainment | Steam | RPM (via RPM Fusion) |
-| Entertainment | Discord, Signal, VLC | Flatpak |
-| Creative | Blender, GIMP, Unity Hub | Flatpak |
+| Entertainment | Steam                                              | RPM (via RPM Fusion) |
+| Entertainment | Discord, Signal, VLC                               | Flatpak |
+| Creative | Blender, GIMP, Unity Hub                           | Flatpak |
 | Utilities | VS Code, JetBrains Rider, GitHub Desktop, Trayscale | Flatpak |
-| Developer | OpenCode (AI coding agent) | Script |
-| Runtimes | .NET SDK & Runtimes (LTS + STS) | Script |
+| Developer | OpenCode (AI coding agent)                         | Script |
+| Runtimes | .NET SDK & Runtimes (LTS + STS)                    | Script |
 
 Installed optional apps are automatically **pinned to the dock**.
 
@@ -170,8 +170,8 @@ Installed optional apps are automatically **pinned to the dock**.
 
 Pick any combination from the TUI menu - selected services are copied to your home directory and started automatically:
 
-| Service | Directory | Address                                              | Description |
-|---|---|------------------------------------------------------|---|
+| Service | Directory | Address | Description |
+|---|---|---|---|
 | Immich | `~/immich` | http://localhost:2283                                | Self-hosted photo & video management |
 | Ollama + Open WebUI | `~/ollama` | http://localhost:3000                                | Local LLM inference with web chat UI |
 | ZeroTier One | `~/zerotierone` | [central.zerotier.com](https://central.zerotier.com) | Peer-to-peer VPN mesh network |
@@ -192,7 +192,7 @@ docker compose up -d      # Restart with new images
 GnomeBlueprint automatically detects atomic Fedora variants (Silverblue, Bazzite, etc.) via `/run/ostree-booted` and adapts accordingly:
 
 | Area | Traditional Fedora | Atomic Fedora |
-|------|-------------------|---------------|
+|---|---|---|
 | System packages | `dnf install` | `rpm-ostree install --idempotent` |
 | System updates | `dnf update` | `rpm-ostree upgrade` |
 | Package removal | `dnf remove` (with dry-run safety) | `rpm-ostree uninstall` / `override remove` |
