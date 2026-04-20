@@ -14,12 +14,12 @@ warning() { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 error()   { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 
 GUM_STYLE_FLAGS=(
-    --selected.foreground=
-    --selected.background=
-    --unselected.foreground=
-    --unselected.background=238
-    --prompt.foreground= 
-    --prompt.background=
+    "--selected.foreground="
+    "--selected.background="
+    "--unselected.foreground="
+    "--unselected.background=238"
+    "--prompt.foreground="
+    "--prompt.background="
 )
 
 gum_confirm_styled() {
