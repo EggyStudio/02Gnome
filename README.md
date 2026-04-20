@@ -1,4 +1,4 @@
-<h1 align="center" style="text-align:center">ZeroToGnome</h1>
+<h1 align="center" style="text-align:center">02Gnome</h1>
 <h4 align="center" style="text-align:center">
 Automate your GNOME desktop in one command.<br>Extensions, themes, apps, and settings. All configured interactively.
 </h4>
