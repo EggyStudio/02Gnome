@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 02Gnome - Theme setup (Adwaita, Rewaita, OLED, Add Water, Firefox)
-# Sourced by install.sh — do not run directly.
+# Sourced by install.sh - do not run directly.
 
 # ─── Adwaita theme setup (adw-gtk3 + Flatpak overrides) ────────────────────────
 setup_themes() {

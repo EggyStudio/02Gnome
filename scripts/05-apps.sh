@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 02Gnome - Application installers (essential Flatpaks, optional apps, .NET, OpenCode)
-# Sourced by install.sh — do not run directly.
+# Sourced by install.sh - do not run directly.
 
 # ─── Essential Flatpak applications (always installed) ──────────────────────────
 ESSENTIAL_FLATPAK_APPS=(

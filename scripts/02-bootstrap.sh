@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 02Gnome - Bootstrap: git, gum, flatpak, system update, repo clone
-# Sourced by install.sh — do not run directly.
+# Sourced by install.sh - do not run directly.
 
 # ─── Install git ───────────────────────────────────────────────────────────────
 install_git() {

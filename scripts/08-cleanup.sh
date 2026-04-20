@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 02Gnome - Cleanup, bloat removal, NVIDIA drivers, wallpapers, reboot
-# Sourced by install.sh — do not run directly.
+# Sourced by install.sh - do not run directly.
 
 # ─── Download wallpaper collection ──────────────────────────────────────────────
 WALLPAPER_REPO="https://github.com/dharmx/walls"

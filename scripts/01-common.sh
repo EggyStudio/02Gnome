@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 02Gnome - Common helpers, colors, and package management
-# Sourced by install.sh — do not run directly.
+# Sourced by install.sh - do not run directly.
 
 # ─── Colors ───────────────────────────────────────────────────────────────────
 YELLOW='\033[1;33m'

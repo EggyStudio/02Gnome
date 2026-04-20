@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 02Gnome - Docker, Tailscale, and Docker Compose services
-# Sourced by install.sh — do not run directly.
+# Sourced by install.sh - do not run directly.
 
 # ─── Install Docker ────────────────────────────────────────────────────────────
 install_docker() {

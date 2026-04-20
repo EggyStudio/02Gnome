@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 02Gnome - GNOME desktop configuration (dconf, profile, preferences, Nautilus, etc.)
-# Sourced by install.sh — do not run directly.
+# Sourced by install.sh - do not run directly.
 
 # ─── Import GNOME settings via dconf ───────────────────────────────────────────
 import_gnome_settings() {

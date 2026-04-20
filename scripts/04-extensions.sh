@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 02Gnome - GNOME Shell extensions installer
-# Sourced by install.sh — do not run directly.
+# Sourced by install.sh - do not run directly.
 
 # ─── GNOME Shell extensions ────────────────────────────────────────────────────
 # Format: "uuid|Human-readable name"
