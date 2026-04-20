@@ -255,7 +255,8 @@ configure_nautilus() {
                 || warning "Could not star $steam_folder"
             info "Starred: $steam_folder"
         else
-            info "Steam installed but library folder not yet created - star it after first launch."
+            info "Steam installed but library folder not yet created."
+            info "star it after first launch."
         fi
     fi
 
