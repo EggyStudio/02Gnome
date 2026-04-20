@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # ╔══════════════════════════════════════════════════════════════════════════════╗
-# ║  02Gnome - User Configuration                                              ║
-# ║                                                                             ║
-# ║  Edit the arrays below to customise your installation.                      ║
-# ║  This file is sourced before anything else - changes take effect on the     ║
-# ║  next run of install.sh.                                                    ║
+# ║  02Gnome - User Configuration                                                ║
+# ║                                                                              ║
+# ║  Edit the arrays below to customise your installation.                       ║
+# ║  This file is sourced before anything else - changes take effect on the      ║
+# ║  next run of install.sh.                                                     ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 # ─── Essential Flatpak applications (always installed) ──────────────────────────
