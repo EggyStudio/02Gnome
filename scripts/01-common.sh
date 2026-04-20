@@ -15,9 +15,9 @@ error()   { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 
 GUM_CONFIRM_STYLE_FLAGS=(
     "--selected.foreground="
-    "--selected.background="
+    "--selected.background=238"
     "--unselected.foreground="
-    "--unselected.background=238"
+    "--unselected.background="
     "--prompt.foreground="
     "--prompt.background="
 )
