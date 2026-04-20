@@ -18,6 +18,8 @@ GUM_STYLE_FLAGS=(
     --selected.background=
     --unselected.foreground=
     --unselected.background=238
+    --prompt.foreground= 
+    --prompt.background=
 )
 
 gum_confirm_styled() {
