@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# GnomeBlueprint - GNOME Desktop Automation Installer
+# ZeroToGnome - GNOME Desktop Automation Installer
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Usage (one-liner):
-#   curl -fsSL https://raw.githubusercontent.com/CanTalat-Yakan/GnomeBlueprint/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/CanTalat-Yakan/ZeroToGnome/main/install.sh | bash
 
 set -euo pipefail
 
-REPO_URL="https://github.com/CanTalat-Yakan/GnomeBlueprint"
+REPO_URL="https://github.com/CanTalat-Yakan/ZeroToGnome"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 GUM_AVAILABLE=true
 USE_OLED=false
@@ -117,7 +117,7 @@ clone_repo() {
         info "Dotfiles already present at $DOTFILES_DIR - pulling latest changes..."
         git -C "$DOTFILES_DIR" pull --ff-only
     else
-        info "Cloning GnomeBlueprint to $DOTFILES_DIR..."
+        info "Cloning ZeroToGnome to $DOTFILES_DIR..."
         git clone "$REPO_URL" "$DOTFILES_DIR"
     fi
 }
@@ -964,7 +964,7 @@ select_profile() {
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
         profile=$(gum choose \
             --header.foreground="12" --header.italic=false \
-            --header "  Select a GnomeBlueprint profile:" \
+            --header "  Select a ZeroToGnome profile:" \
             "Desktop" \
             "Laptop" \
             | tr '[:upper:]' '[:lower:]')

@@ -1,9 +1,9 @@
-<h1 align="center" style="text-align:center">GnomeBlueprint</h1>
+<h1 align="center" style="text-align:center">ZeroToGnome</h1>
 <h4 align="center" style="text-align:center">
 Automate your GNOME desktop in one command.<br>Extensions, themes, apps, and settings. All configured interactively.
 </h4>
 <p align="center" style="text-align:center">
-20 minutes is all it takes to go from zero to a custom Fedora environment using GnomeBlueprint.
+20 minutes is all it takes to go from zero to a custom Fedora environment using ZeroToGnome.
 <br><em>
 Works on Fedora Workstation and atomic variants (Silverblue, Bazzite), as well as other GNOME-based distros (Nobara, Ubuntu, Arch, etc.).
 </em></p>
@@ -14,7 +14,7 @@ Works on Fedora Workstation and atomic variants (Silverblue, Bazzite), as well a
   <img alt="Shell" src="https://img.shields.io/badge/Shell-Bash-4EAA25">
   <img alt="TUI" src="https://img.shields.io/badge/TUI-gum-FF75B5">
   <a href="LICENSE"><img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg"></a>
-  <a href="https://deepwiki.com/CanTalat-Yakan/GnomeBlueprint"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
+  <a href="https://deepwiki.com/CanTalat-Yakan/ZeroToGnome"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
 </p>
 
 ## Recommended Base Install
@@ -27,10 +27,10 @@ A single tool that downloads the ISO and creates a bootable USB in a few clicks.
 ## Quick Installation
 
 ```bash
-curl -fsSL https://bit.ly/gnomeblueprint | bash
+curl -fsSL https://bit.ly/zerotoGnome | bash
 ```
 
-![gnomeblueprint.png](.github/assets/gnomeblueprint.png)
+![zerotoGnome.png](.github/assets/zerotoGnome.png)
 
 <!-- TOC -->
 
@@ -189,7 +189,7 @@ docker compose up -d      # Restart with new images
 
 ## Atomic / Immutable Fedora Support
 
-GnomeBlueprint automatically detects atomic Fedora variants (Silverblue, Bazzite, etc.) via `/run/ostree-booted` and adapts accordingly:
+ZeroToGnome automatically detects atomic Fedora variants (Silverblue, Bazzite, etc.) via `/run/ostree-booted` and adapts accordingly:
 
 | Area | Traditional Fedora | Atomic Fedora |
 |---|---|---|
@@ -211,7 +211,7 @@ GnomeBlueprint automatically detects atomic Fedora variants (Silverblue, Bazzite
 ## Project Structure
 
 ```
-GnomeBlueprint/
+ZeroToGnome/
 ├── install.sh                  # Root installer (curl | bash)
 ├── docker/
 │   ├── immich/
