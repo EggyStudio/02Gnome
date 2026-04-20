@@ -103,7 +103,7 @@ RPM removal runs a **dry-run first** - if removing a package would cascade into 
 | 10 | Configures **Add Water** and **Firefox** (injects `user.js` for privacy, deploys `policies.json` for search engine & toolbar) |
 | 11 | Lets you toggle **user preferences** (24h clock, auto-login, regional formats, etc.) |
 | 12 | Configures **Nautilus, Templates, Terminal, and Text Editor** defaults |
-| 13 | Optionally downloads a **wallpaper collection** |
+| 13 | Optionally downloads a **wallpaper collection** from [dharmx/walls](https://github.com/dharmx/walls) (defaults to [m-26.jp](https://github.com/dharmx/walls/tree/main/m-26.jp) slideshow) |
 | 14 | Optionally **removes GNOME bloat** (Boxes, Calendar, Camera, Clocks, Characters, Weather, LibreOffice, etc.) |
 | 15 | Lets you pick **optional apps** (Discord, Steam, VS Code, OpenCode, etc.) |
 | 16 | Lets you pick **Docker Compose services** (Immich, Ollama + Open WebUI, ZeroTier) |
