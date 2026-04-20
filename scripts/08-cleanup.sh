@@ -29,8 +29,19 @@ ask_download_wallpapers() {
     fi
 
     if [ -d "$WALLPAPER_DIR/.git" ]; then
-        info "Wallpapers already present - pulling latest..."
-        git -C "$WALLPAPER_DIR" pull --ff-only || warning "Could not update wallpapers."
+        local pull_output=""
+        pull_output=$(git -C "$WALLPAPER_DIR" pull --ff-only 2>&1) || {
+            warning "Could not update wallpapers."
+            return
+        }
+
+        if printf '%s' "$pull_output" | grep -qi "Already up[ -]to[ -]date"; then
+            info "Wallpapers already present."
+            info "Already up to date."
+        else
+            info "Wallpapers already present."
+            info "Pulled latest changes."
+        fi
     else
         info "Cloning wallpaper collection..."
         mkdir -p "$(dirname "$WALLPAPER_DIR")"

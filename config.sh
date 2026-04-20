@@ -44,7 +44,7 @@ OPTIONAL_APPS=(
 # ─── GNOME Shell extensions ────────────────────────────────────────────────────
 # Format: "uuid|Human-readable name"
 GNOME_EXTENSIONS=(
-    "appindicatorsupport@rgcjonas.gmail.com|AppIndicator & KStatusNotifierItem Support"
+    "appindicatorsupport@rgcjonas.gmail.com|AppIndicator"
     "arcmenu@arcmenu.com|ArcMenu"
     "clipboard-history@alexsaveau.dev|Clipboard History"
     "dash-to-dock@micxgx.gmail.com|Dash to Dock"

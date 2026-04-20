@@ -133,7 +133,7 @@ RPM removal runs a **dry-run first** - if removing a package would cascade into 
 
 | Extension | UUID |
 |---|---|
-| AppIndicator & KStatusNotifierItem | `appindicatorsupport@rgcjonas.gmail.com` |
+| AppIndicator | `appindicatorsupport@rgcjonas.gmail.com` |
 | ArcMenu | `arcmenu@arcmenu.com` |
 | Clipboard History | `clipboard-history@alexsaveau.dev` |
 | Dash to Dock | `dash-to-dock@micxgx.gmail.com` |
