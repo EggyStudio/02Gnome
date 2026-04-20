@@ -27,7 +27,7 @@ A single tool that downloads the ISO and creates a bootable USB in a few clicks.
 ## Quick Installation
 
 ```bash
-curl -fsSL https://bit.ly/zerotoGnome | bash
+curl -fsSL bit.ly/02gnome | bash
 ```
 
 ![zerotoGnome.png](.github/assets/zerotoGnome.png)
