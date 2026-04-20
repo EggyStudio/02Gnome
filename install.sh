@@ -69,12 +69,9 @@ _early_install_git() {
 
 _early_clone_repo() {
     if [ -d "$DOTFILES_DIR/.git" ]; then
-        info "Dotfiles already present at $DOTFILES_DIR."
-        info "Pulling latest changes..."
-        git -C "$DOTFILES_DIR" pull --ff-only
+        git -C "$DOTFILES_DIR" pull --ff-only -q
     else
-        info "Cloning 02Gnome to $DOTFILES_DIR..."
-        git clone "$REPO_URL" "$DOTFILES_DIR"
+        git clone -q "$REPO_URL" "$DOTFILES_DIR"
     fi
 }
 
@@ -106,21 +103,13 @@ BANNER
     # 3. Bootstrap tooling (gum TUI)
     install_gum
 
-    # 4. System update (dnf + flatpak)
-    system_update
-
-    # 5. Profile selection
-    local profile
-    profile=$(select_profile)
-    info "Selected profile: ${BOLD}${profile}${NC}"
-
-    # 5b. Ask user before starting configuration
+    # 4. Show info & ask user before starting
     echo ""
     info "Repository cloned to ${BOLD}${DOTFILES_DIR}${NC}"
     info ""
     info "Customise your installation by editing:"
     info "  ${BOLD}${DOTFILES_DIR}/config.sh${NC}  - Apps, extensions, bloat list, dock pins, Docker services"
-    info "  ${BOLD}${DOTFILES_DIR}/gnome/${profile}/${NC}  - dconf settings (theme, shortcuts, dock, etc.)"
+    info "  ${BOLD}${DOTFILES_DIR}/gnome/<profile>/${NC}  - dconf settings (theme, shortcuts, dock, etc.)"
     echo ""
     info "  config.sh arrays you can edit:"
     info "    ESSENTIAL_FLATPAK_APPS   - Flatpaks always installed"
@@ -134,11 +123,11 @@ BANNER
 
     local do_continue=true
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if ! gum confirm --default=yes "  Start configuration now?"; then
+        if ! gum confirm --default=yes "  Start installation?"; then
             do_continue=false
         fi
     else
-        echo -e "${CYAN}${BOLD}Start configuration now?${NC} [Y/n]"
+        echo -e "${_CYAN}${_BOLD}Start installation?${_NC} [Y/n]"
         local answer
         read -rp "> " answer
         case "$answer" in
@@ -147,9 +136,17 @@ BANNER
     fi
 
     if [ "$do_continue" = false ]; then
-        info "Configuration paused. Edit the dconf files above, then re-run this script."
+        info "Installation cancelled. Edit config.sh, then re-run this script."
         exit 0
     fi
+
+    # 5. System update (dnf + flatpak)
+    system_update
+
+    # 6. Profile selection
+    local profile
+    profile=$(select_profile)
+    info "Selected profile: ${BOLD}${profile}${NC}"
 
     # 6. Core setup
     install_flatpak
