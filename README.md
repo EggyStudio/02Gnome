@@ -30,7 +30,7 @@ A single tool that downloads the ISO and creates a bootable USB in a few clicks.
 curl -fsSL bit.ly/02gnome | bash
 ```
 
-![02Gnome.png](.github/assets/02Gnome.png)
+![02Gnome.png](.github/assets/02gnome.png)
 
 <!-- TOC -->
 
