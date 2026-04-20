@@ -11,7 +11,7 @@ ask_download_wallpapers() {
     local do_download=false
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if gum confirm "  Download wallpaper collection to ~/Pictures/Wallpapers?"; then
+        if gum_confirm_styled "  Download wallpaper collection to ~/Pictures/Wallpapers?"; then
             do_download=true
         fi
     else
@@ -60,7 +60,7 @@ ask_uninstall_bloat() {
     local do_remove=false
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if gum confirm "  Uninstall GNOME bloat? (Boxes, Characters, Connections, Contacts, etc.)"; then
+        if gum_confirm_styled "  Uninstall GNOME bloat? (Boxes, Characters, Connections, Contacts, etc.)"; then
             do_remove=true
         fi
     else
@@ -126,7 +126,7 @@ install_nvidia_drivers() {
 
     local do_nvidia=false
     if command -v gum &>/dev/null; then
-        if gum confirm --default=yes "  Install NVIDIA proprietary drivers?"; then
+        if gum_confirm_styled --default=yes "  Install NVIDIA proprietary drivers?"; then
             do_nvidia=true
         fi
     else
@@ -231,7 +231,7 @@ ask_reboot() {
     local do_reboot=false
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if gum confirm --default=no "  Reboot now to apply all changes?"; then
+        if gum_confirm_styled --default=no "  Reboot now to apply all changes?"; then
             do_reboot=true
         fi
     else

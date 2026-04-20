@@ -13,6 +13,21 @@ info()    { echo -e "${CYAN}[INFO]${NC}  $*"; }
 warning() { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 error()   { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 
+GUM_STYLE_FLAGS=(
+    --selected.foreground=
+    --selected.background=
+    --unselected.foreground=
+    --unselected.background=238
+)
+
+gum_confirm_styled() {
+    gum confirm "${GUM_STYLE_FLAGS[@]}" "$@"
+}
+
+gum_choose_styled() {
+    gum choose "${GUM_STYLE_FLAGS[@]}" "$@"
+}
+
 # ─── Detect immutable / atomic Fedora (Silverblue, Bazzite, Kinoite, etc.) ────
 detect_atomic() {
     if [ -f /run/ostree-booted ] || command -v rpm-ostree &>/dev/null; then

@@ -118,7 +118,7 @@ BANNER
 
     local do_continue=true
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if ! gum confirm --default=yes "  Start installation?"; then
+        if ! gum_confirm_styled --default=yes "  Start installation?"; then
             do_continue=false
         fi
     else

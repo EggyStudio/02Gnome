@@ -94,7 +94,7 @@ ask_oled_preference() {
     echo ""
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if gum confirm --default=no "  Use pure-black Oled dark theme?"; then
+        if gum_confirm_styled --default=no "  Use pure-black Oled dark theme?"; then
             USE_OLED=true
         fi
     else

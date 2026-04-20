@@ -41,7 +41,7 @@ select_profile() {
     local profile
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        profile=$(gum choose \
+        profile=$(gum_choose_styled \
             --header.foreground="12" --header.italic=false \
             --header "  Select a 02Gnome profile:" \
             "Desktop" \
@@ -106,7 +106,7 @@ ask_user_preferences() {
         selected_default=$(IFS=,; echo "${pref_labels[*]}")
 
         local raw
-        raw=$(gum choose --no-limit \
+        raw=$(gum_choose_styled --no-limit \
             --selected="$selected_default" \
             --header.foreground="12" --header.italic=false \
             --header "  Select preferences (↑/↓ move, Space toggle, Enter confirm):" \
