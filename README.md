@@ -213,6 +213,17 @@ docker compose up -d      # Restart with new images
 ```
 02Gnome/
 ├── install.sh                  # Root installer (curl | bash)
+├── config.sh                   # User configuration (apps, extensions, services)
+├── assets/
+│   ├── icons/
+│   │   ├── immich.png              # Immich web app icon
+│   │   ├── open-webui-light.png    # Open WebUI web app icon
+│   │   ├── tailscale-light.png     # Tailscale web app icon
+│   │   ├── tux-logo.svg           # Tux (Linux) logo icon
+│   │   └── zerotier.png           # ZeroTier web app icon
+│   └── themes/
+│       ├── dark/                   # Default and Oled pure-black CSS themes
+│       └── light/                  # Default light CSS theme
 ├── docker/
 │   ├── immich/
 │   │   ├── docker-compose.yml  # Immich photo management stack
@@ -228,22 +239,29 @@ docker compose up -d      # Restart with new images
 │   ├── policies.json           # Enterprise policies (search engine, toolbar)
 │   └── user.js                 # Privacy, theming, and UI settings for Firefox
 ├── gnome/
-│   ├── desktop.dconf           # dconf settings for desktop profile
-│   └── laptop.dconf            # dconf settings for laptop profile
-├── icons/
-│   ├── immich.png              # Immich web app icon
-│   ├── open-webui-light.png    # Open WebUI web app icon
-│   ├── tailscale-light.png     # Tailscale web app icon
-│   ├── tux-logo.svg            # Tux (Linux) logo icon
-│   └── zerotier.png            # ZeroTier web app icon
-├── profiles/
 │   ├── desktop/
+│   │   ├── 01-interface.dconf  # Desktop UI & appearance settings
+│   │   ├── 02-shortcuts.dconf  # Keyboard shortcuts
+│   │   ├── 03-dock.dconf       # Dash to Dock configuration
+│   │   ├── 04-extensions.dconf # Extension-specific settings
+│   │   ├── 05-apps.dconf       # App defaults (Terminal, Text Editor, etc.)
 │   │   └── setup.sh            # Desktop-specific setup script
 │   └── laptop/
+│       ├── 01-interface.dconf  # Laptop UI & appearance settings
+│       ├── 02-shortcuts.dconf  # Keyboard shortcuts
+│       ├── 03-dock.dconf       # Dash to Dock configuration
+│       ├── 04-extensions.dconf # Extension-specific settings
+│       ├── 05-apps.dconf       # App defaults (Terminal, Text Editor, etc.)
 │       └── setup.sh            # Laptop-specific setup script
-├── themes/
-│   ├── dark/                   # Default and Oled pure-black CSS themes
-│   └── light/                  # Default light CSS theme
+├── scripts/
+│   ├── 01-common.sh            # Colors, helpers, package management
+│   ├── 02-bootstrap.sh         # System update, Flatpak, Docker, Tailscale
+│   ├── 03-docker.sh            # Docker Compose service management
+│   ├── 04-extensions.sh        # GNOME Shell extension installer
+│   ├── 05-apps.sh              # Essential & optional app installation
+│   ├── 06-gnome.sh             # dconf import, profile runner, preferences
+│   ├── 07-themes.sh            # Adwaita & Rewaita theme setup
+│   └── 08-cleanup.sh           # Final cleanup, NVIDIA drivers, reboot
 ├── LICENSE                     # GNU GPL v3.0
 └── README.md
 ```
