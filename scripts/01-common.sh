@@ -29,8 +29,6 @@ GUM_CHOOSE_STYLE_FLAGS=(
     "--cursor.background="
     "--item.foreground="
     "--item.background="
-    "--prompt.foreground="
-    "--prompt.background="
 )
 
 gum_confirm_styled() {
