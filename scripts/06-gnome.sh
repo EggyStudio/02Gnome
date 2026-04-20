@@ -199,7 +199,7 @@ ask_user_preferences() {
                             region_locale=$(echo "$region_locale" | sed 's/utf8/UTF-8/; s/\.utf-8/.UTF-8/i')
                             dconf write /system/locale/region "'$region_locale'" 2>/dev/null || true
                             info "Regional format set to $region_locale."
-                            info "(timezone: $tz, country: $cc)."
+                            info "Timezone: $tz, country: $cc."
                         else
                             warning "No UTF-8 locale found for country $cc - skipping."
                         fi
