@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ZeroToGnome - Laptop profile setup
+# 02Gnome - Laptop profile setup
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This script is invoked automatically by install.sh when the "Laptop" profile

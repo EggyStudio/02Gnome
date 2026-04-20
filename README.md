@@ -3,7 +3,7 @@
 Automate your GNOME desktop in one command.<br>Extensions, themes, apps, and settings. All configured interactively.
 </h4>
 <p align="center" style="text-align:center">
-20 minutes is all it takes to go from zero to a custom Fedora environment using ZeroToGnome.
+20 minutes is all it takes to go from zero to a custom Fedora environment using 02Gnome.
 <br><em>
 Works on Fedora Workstation and atomic variants (Silverblue, Bazzite), as well as other GNOME-based distros (Nobara, Ubuntu, Arch, etc.).
 </em></p>
@@ -14,7 +14,7 @@ Works on Fedora Workstation and atomic variants (Silverblue, Bazzite), as well a
   <img alt="Shell" src="https://img.shields.io/badge/Shell-Bash-4EAA25">
   <img alt="TUI" src="https://img.shields.io/badge/TUI-gum-FF75B5">
   <a href="LICENSE"><img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg"></a>
-  <a href="https://deepwiki.com/CanTalat-Yakan/ZeroToGnome"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
+  <a href="https://deepwiki.com/CanTalat-Yakan/02Gnome"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
 </p>
 
 ## Recommended Base Install
@@ -30,7 +30,7 @@ A single tool that downloads the ISO and creates a bootable USB in a few clicks.
 curl -fsSL bit.ly/02gnome | bash
 ```
 
-![zerotoGnome.png](.github/assets/zerotoGnome.png)
+![02Gnome.png](.github/assets/02Gnome.png)
 
 <!-- TOC -->
 
@@ -189,7 +189,7 @@ docker compose up -d      # Restart with new images
 
 ## Atomic / Immutable Fedora Support
 
-ZeroToGnome automatically detects atomic Fedora variants (Silverblue, Bazzite, etc.) via `/run/ostree-booted` and adapts accordingly:
+02Gnome automatically detects atomic Fedora variants (Silverblue, Bazzite, etc.) via `/run/ostree-booted` and adapts accordingly:
 
 | Area | Traditional Fedora | Atomic Fedora |
 |---|---|---|
@@ -211,7 +211,7 @@ ZeroToGnome automatically detects atomic Fedora variants (Silverblue, Bazzite, e
 ## Project Structure
 
 ```
-ZeroToGnome/
+02Gnome/
 ├── install.sh                  # Root installer (curl | bash)
 ├── docker/
 │   ├── immich/

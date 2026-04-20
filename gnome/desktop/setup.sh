@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ZeroToGnome - Desktop profile setup
+# 02Gnome - Desktop profile setup
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This script is invoked automatically by install.sh when the "Desktop" profile
