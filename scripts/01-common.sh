@@ -23,12 +23,12 @@ GUM_CONFIRM_STYLE_FLAGS=(
 )
 
 GUM_CHOOSE_STYLE_FLAGS=(
+    "--selected.foreground="
+    "--selected.background=238"
+    "--item.foreground="
+    "--item.background="
     "--cursor.foreground="
     "--cursor.background="
-    "--item.foreground="
-    "--item.background=238"
-    "--selected.foreground="
-    "--selected.background="
 )
 
 gum_confirm_styled() {
