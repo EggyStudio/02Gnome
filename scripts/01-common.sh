@@ -13,7 +13,7 @@ info()    { echo -e "${CYAN}[INFO]${NC}  $*"; }
 warning() { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 error()   { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 
-GUM_STYLE_FLAGS=(
+GUM_CONFIRM_STYLE_FLAGS=(
     "--selected.foreground="
     "--selected.background="
     "--unselected.foreground="
@@ -22,12 +22,21 @@ GUM_STYLE_FLAGS=(
     "--prompt.background="
 )
 
+GUM_CHOOSE_STYLE_FLAGS=(
+    "--cursor.foreground="
+    "--cursor.background="
+    "--item.foreground="
+    "--item.background=238"
+    "--selected.foreground="
+    "--selected.background="
+)
+
 gum_confirm_styled() {
-    gum confirm "${GUM_STYLE_FLAGS[@]}" "$@"
+    gum confirm "${GUM_CONFIRM_STYLE_FLAGS[@]}" "$@"
 }
 
 gum_choose_styled() {
-    gum choose "${GUM_STYLE_FLAGS[@]}" "$@"
+    gum choose "${GUM_CHOOSE_STYLE_FLAGS[@]}" "$@"
 }
 
 # ─── Detect immutable / atomic Fedora (Silverblue, Bazzite, Kinoite, etc.) ────
