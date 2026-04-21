@@ -446,7 +446,8 @@ configure_firefox() {
             warning "Could not find Firefox installation directory to deploy policies.json."
             warning "You may need to manually copy policies.json to your Firefox distribution/ folder."
         else
-            info "Firefox policies deployed (search engine & toolbar changes take effect on next launch)."
+            info "Firefox policies deployed."
+            info "Firefox search engine & toolbar changes take effect on next launch."
         fi
     fi
 }
