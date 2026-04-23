@@ -39,7 +39,7 @@ setup_themes() {
     flatpak override --user --filesystem=xdg-config/gtk-3.0 2>/dev/null || true
 
     info "Themes applied."
-    info "Open Rewaita to browse and apply Adwaita icon theme variants."
+    info "Open Rewaita to browse and apply Adwaita theme variants."
 }
 
 # ─── Install Rewaita custom themes ─────────────────────────────────────────────
