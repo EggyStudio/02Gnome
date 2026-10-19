@@ -17,6 +17,7 @@ Works on Fedora Workstation and atomic variants (Silverblue, Bazzite), and other
   <a href="https://deepwiki.com/EggyStudio/02Gnome"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
 </p>
 
+
 ## Recommended Base Install
 
 Download [**Fedora Workstation 44**](https://fedoraproject.org/workstation/download/) and flash it to a USB drive with [**Fedora Media Writer**](https://github.com/FedoraQt/MediaWriter).
