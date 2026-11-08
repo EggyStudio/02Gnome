@@ -165,6 +165,14 @@ A likeness is not a description and a figure of speech is not a term, so a thing
 is and does. Another product is named only where a rule or a number is taken from it. A
 description holds no plan, so no line says what a thing is the start of or grows toward.
 
+A comment stands on the code's own terms. It says what the code does and why in the project's
+words; a number taken from elsewhere stands with the reason it is right here, what it makes the
+program do, and the source is named once in the documents' references rather than in the comment.
+The file names of outside assets, another product's profile or process as the explanation, "as X
+works it out", and the facts of the sessions' work are not written in a comment, since a reader of
+the source has none of them. A comparison test names the reference it compares against, since the
+comparison is the test.
+
 | instead of | write |
 |---|---|
 | `the light that bounces`, `the bounce` | `global illumination`, or `radiance cascades` where the technique is meant and `indirect light` where its effect is |
