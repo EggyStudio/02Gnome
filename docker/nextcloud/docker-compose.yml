@@ -23,7 +23,7 @@ services:
       - ./redis:/data:z
 
   app:
-    image: nextcloud:apache
+    image: nextcloud:35-apache
     container_name: nextcloud-app
     restart: unless-stopped
     ports:

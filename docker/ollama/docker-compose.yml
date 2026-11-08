@@ -1,13 +1,12 @@
 services:
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.40.15
     container_name: ollama
     restart: unless-stopped
     ports:
       - "11434:11434"
     environment:
       OLLAMA_HOST: 0.0.0.0:11434
-      OLLAMA_NUM_GPU_LAYERS: "999"
     volumes:
       - ./ollama-data:/root/.ollama
     deploy:
@@ -19,7 +18,7 @@ services:
               capabilities: [gpu]
 
   open-webui:
-    image: ghcr.io/open-webui/open-webui:latest
+    image: ghcr.io/open-webui/open-webui:0.13
     container_name: open-webui
     restart: unless-stopped
     ports:
