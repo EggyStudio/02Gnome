@@ -61,8 +61,12 @@ on the owner's word, passes over install.sh with every module it sources and ove
 its real findings are mended, kernel and orphan lists passed as quoted arrays, two chained updates
 braced, the atomic gum download an if and else that finds the binary and installs it, at gum 2.0.2,
 and a template count by find. Items 1 to 6 are done in the tree; the owner commits by Replies item 6
-and pushes by item 7. Nothing is committed or pushed by the working session; the owner commits and
-pushes.
+and pushes by item 7. The owner committed items 1 to 6's work in five commits of the shared form,
+`f19c0f0` the documents, `ed8d353` the Rewaita themes, `925a15c` the Compose services, `ad8e14e` the
+installer's order, questions and mends, and `da002ea` the README, on the rewritten history, and on
+their word the reviewing session force-pushed main with a lease at 17:40 on 2026-11-08, the remote's
+every author the account and the stale branch gone; the repository is at `da002ea` with nothing in
+flight. Nothing is committed or pushed by the working session.
 
 ## Now
 
@@ -358,10 +362,7 @@ Replies and to the reviewing session, by file, with the reason.
       right, and the profile's second import set the center back. The headers of both profiles'
       scripts and their last lines follow STYLE.md, "optimised" among them.
     - The services' READMEs are item 3's.
-    - Checked by the checks of STYLE.md over the README, whose hits are the header's HTML
-      attribute and the extension's name, Just Perfection, by `curl` on the README's links, each
-      returning 200 apart from DeepWiki's, which refused automated requests with 429, and by the
-      name check, which finds nothing in the tree.
+    - Checked by the checks of STYLE.
     - Open. Shellcheck over every changed script, once the owner has installed it, and item 6,
       which waits for the owner's confirmation.
 
