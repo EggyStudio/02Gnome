@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
-# 02Gnome - Application installers (essential Flatpaks, optional apps, .NET, OpenCode)
-# Sourced by install.sh - do not run directly.
-
+# 02Gnome's application installers, the essential Flatpaks, the optional applications, .NET and OpenCode.
+# install.sh sources this file, which is not run on its own.
 
 install_essential_flatpaks() {
-    info "Installing essential Flatpak applications..."
+    info "Installing essential Flatpak applications"
     for app in "${ESSENTIAL_APPS[@]}"; do
         install_one_flatpak "$app"
     done
 
     # Install Firefox if not already present
     if ! have_firefox_install; then
-        info "Installing Firefox..."
+        info "Installing Firefox"
         if [ "$IS_ATOMIC" = true ]; then
             install_one_flatpak "org.mozilla.firefox"
         elif command -v dnf &>/dev/null; then
@@ -29,7 +28,7 @@ install_essential_flatpaks() {
     fi
 
     # Install GNOME Tweaks
-    info "Installing GNOME Tweaks..."
+    info "Installing GNOME Tweaks"
     if [ "$IS_ATOMIC" = true ]; then
         rpm -q gnome-tweaks &>/dev/null 2>&1 \
             || pkg_install gnome-tweaks
@@ -48,20 +47,18 @@ install_essential_flatpaks() {
     fi
 }
 
-
-# ─── .NET SDK installer ─────────────────────────────────────────────────────────
 install_dotnet() {
-    info "Installing .NET SDK & Runtimes..."
+    info "Installing .NET SDK & Runtimes"
     local tmp_script
     tmp_script=$(mktemp)
     curl -fsSL https://dot.net/v1/dotnet-install.sh -o "$tmp_script" || {
-        warning "Failed to download .NET install script - skipping."
+        warning "Failed to download .NET install script, so it is skipped."
         rm -f "$tmp_script"; return
     }
     chmod +x "$tmp_script"
 
     for channel in LTS STS; do
-        info "  Installing .NET $channel channel..."
+        info "  Installing .NET $channel channel"
         bash "$tmp_script" --channel "$channel" \
             || warning "  .NET $channel install encountered an error."
     done
@@ -74,14 +71,13 @@ install_dotnet() {
     fi
 }
 
-# ─── Claude installer ─────────────────────────────────────────────────────────
 install_claude() {
     if command -v claude &>/dev/null; then
         info "Claude is already installed."
         return
     fi
 
-    info "Installing Claude..."
+    info "Installing Claude"
     curl -fsSL https://claude.ai/install.sh | bash \
         || warning "Claude install encountered an error."
 
@@ -93,14 +89,13 @@ install_claude() {
     fi
 }
 
-# ─── OpenCode installer ─────────────────────────────────────────────────────────
 install_opencode() {
     if command -v opencode &>/dev/null; then
         info "OpenCode is already installed."
         return
     fi
 
-    info "Installing OpenCode..."
+    info "Installing OpenCode"
     curl -fsSL https://opencode.ai/install | bash \
         || warning "OpenCode install encountered an error."
 
@@ -112,51 +107,24 @@ install_opencode() {
     fi
 }
 
-select_and_install_optional_apps() {
-    echo ""
-    info "Choose additional applications to install (optional)."
-    echo ""
+SELECTED_OPTIONAL_APPS=()
 
-    local labels=()
+ask_optional_apps() {
+    local labels=() entry
     for entry in "${OPTIONAL_APPS[@]}"; do
         labels+=("${entry%%|*}")
     done
+    mapfile -t SELECTED_OPTIONAL_APPS < <(ask_choose_many "Select optional applications" none "${labels[@]}")
+}
 
-    local selected=()
-
-    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        local raw
-        raw=$(gum_choose_styled --no-limit --height=${#labels[@]} \
-            --header "  Select optional apps (↑/↓ move, Space select, Enter confirm):" \
-            "${labels[@]}") || true
-
-        if [ -n "$raw" ]; then
-            while IFS= read -r line; do
-                selected+=("$line")
-            done <<< "$raw"
-        fi
-    else
-        echo -e "${CYAN}${BOLD}Optional applications:${NC}"
-        for i in "${!labels[@]}"; do
-            printf "  %2d) %s\n" "$((i + 1))" "${labels[$i]}"
-        done
-        echo ""
-        echo "Enter the numbers you want (space-separated), or press Enter to skip:"
-        local choices
-        read -rp "> " choices
-        for num in $choices; do
-            if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#labels[@]}" ]; then
-                selected+=("${labels[$((num - 1))]}")
-            fi
-        done
-    fi
-
-    if [ ${#selected[@]} -eq 0 ]; then
-        info "No optional applications selected - moving on."
+install_optional_apps() {
+    if [ ${#SELECTED_OPTIONAL_APPS[@]} -eq 0 ]; then
+        info "No optional applications were selected."
         return
     fi
 
-    info "Installing ${#selected[@]} optional application(s)..."
+    local selected=("${SELECTED_OPTIONAL_APPS[@]}")
+    info "Installing ${#selected[@]} optional applications"
 
     for sel in "${selected[@]}"; do
         for entry in "${OPTIONAL_APPS[@]}"; do
@@ -169,7 +137,7 @@ select_and_install_optional_apps() {
                     flatpak)
                         install_one_flatpak "$install_id"
                         if [ "$install_id" = "org.signal.Signal" ]; then
-                            info "Configuring Signal to use GNOME Keyring..."
+                            info "Configuring Signal to use GNOME Keyring"
                             flatpak override --user --env=SIGNAL_PASSWORD_STORE=gnome-libsecret org.signal.Signal 2>/dev/null || true
                         fi
                         ;;

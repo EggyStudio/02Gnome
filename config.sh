@@ -1,24 +1,20 @@
 #!/usr/bin/env bash
-# ╔══════════════════════════════════════════════════════════════════════════════╗
-# ║  02Gnome - User Configuration                                                ║
-# ║                                                                              ║
-# ║  Edit the arrays below to customise your installation.                       ║
-# ║  This file is sourced before anything else - changes take effect on the      ║
-# ║  next run of install.sh.                                                     ║
-# ╚══════════════════════════════════════════════════════════════════════════════╝
+# 02Gnome's configuration. The arrays below set what the installer installs
+# and removes. The installer sources this file before its modules, so an edit
+# takes effect at the next run of install.sh.
 
-# ─── Essential Flatpak applications (always installed) ──────────────────────────
+# Essential Flatpak applications, installed on every run.
 ESSENTIAL_APPS=(
-    "com.mattjakeman.ExtensionManager"     # Extension Manager - browse & toggle GNOME extensions
-    "com.github.tchx84.Flatseal"           # Flatseal - manage Flatpak permissions
-    "io.github.fabrialberio.pinapp"        # Pins - create custom app shortcuts
-    "dev.qwery.AddWater"                   # Add Water - apply Adwaita theme to Firefox
-    "io.github.swordpuffin.rewaita"        # Rewaita - bring color to Adwaita
-    "io.missioncenter.MissionCenter"       # Mission Center - system monitor
-    "org.pvermeer.WebAppHub"               # Web App Hub - manage web applications
+    "com.mattjakeman.ExtensionManager"     # Extension Manager, which browses and toggles GNOME extensions
+    "com.github.tchx84.Flatseal"           # Flatseal, which manages Flatpak permissions
+    "io.github.fabrialberio.pinapp"        # Pins, which creates application shortcuts
+    "dev.qwery.AddWater"                   # Add Water, which applies the Adwaita theme to Firefox
+    "io.github.swordpuffin.rewaita"        # Rewaita, which brings color to Adwaita
+    "io.missioncenter.MissionCenter"       # Mission Center, a system monitor
+    "org.pvermeer.WebAppHub"               # Web App Hub, which manages web applications
 )
 
-# ─── Optional applications (interactive chooser) ───────────────────────────────
+# Optional applications, offered at the start.
 # Format: "Label|type:id"   type = flatpak | rpm | script
 OPTIONAL_APPS=(
     # Entertainment
@@ -42,7 +38,7 @@ OPTIONAL_APPS=(
     ".NET SDK & Runtimes|script:dotnet"
 )
 
-# ─── GNOME Shell extensions ────────────────────────────────────────────────────
+# GNOME Shell extensions, installed and enabled.
 # Format: "uuid|Human-readable name"
 GNOME_EXTENSIONS=(
     "appindicatorsupport@rgcjonas.gmail.com|AppIndicator"
@@ -66,7 +62,7 @@ GNOME_EXTENSIONS_DISABLED=(
     "Vitals@CoreCoding.com|Vitals"
 )
 
-# ─── GNOME bloatware to remove (when user confirms) ────────────────────────────
+# GNOME applications removed when the question at the start is answered yes.
 # Format: "flatpak-id|dnf-pkg|pacman-pkg|Display Name"
 GNOME_BLOAT_APPS=(
     "org.gnome.Boxes|gnome-boxes|gnome-boxes|Boxes"
@@ -77,7 +73,7 @@ GNOME_BLOAT_APPS=(
     "org.gnome.Connections|gnome-connections|gnome-connections|Connections"
     "org.gnome.Contacts|gnome-contacts|gnome-contacts|Contacts"
     "org.gnome.Extensions|gnome-extensions-app|gnome-extensions-app|Extensions"
-    "org.gnome.baobab|baobab|baobab|Disk Usage Analyser"
+    "org.gnome.baobab|baobab|baobab|Disk Usage Analyzer"
     "org.gnome.SimpleScan|simple-scan|simple-scan|Document Scanner"
     "org.fedoraproject.MediaWriter|mediawriter|-|Fedora Media Writer"
     "org.gnome.Yelp|yelp|yelp|Help"
@@ -90,7 +86,7 @@ GNOME_BLOAT_APPS=(
     "org.gnome.Weather|gnome-weather|gnome-weather|Weather"
 )
 
-# ─── Dock pin order for optional apps ──────────────────────────────────────────
+# The order of the optional applications in the dock.
 # Format: "flatpak-id|rpm-desktop-name(s)"
 OPTIONAL_PIN_ORDER=(
     "com.valvesoftware.Steam|steam"
@@ -104,7 +100,7 @@ OPTIONAL_PIN_ORDER=(
     "io.github.shiftey.Desktop|github-desktop"
 )
 
-# ─── Docker Compose services (interactive chooser) ─────────────────────────────
+# Docker Compose services, offered at the start.
 # Format: "Label|directory-name"  (must exist under docker/)
 DOCKER_SERVICES=(
     "Immich|immich"

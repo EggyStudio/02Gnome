@@ -1,21 +1,18 @@
 #!/usr/bin/env bash
-# 02Gnome - Desktop profile setup
+# 02Gnome's setup of the desktop profile.
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# This script is invoked automatically by install.sh when the "Desktop" profile
-# is selected.  It applies GNOME settings suited for a desktop (non-portable)
-# machine.
+# install.sh runs this script for the desktop profile. It applies the GNOME
+# settings for a machine that stays in one place on mains power.
 
 set -euo pipefail
 
 info() { echo -e "\033[0;36m[INFO]\033[0m  $*"; }
 
-info "Applying Desktop profile settings..."
+info "Applying Desktop profile settings"
 
-
-# ─── Desktop-specific GNOME tweaks ─────────────────────────────────────────────
 if command -v gsettings &>/dev/null; then
-    info "Applying desktop GNOME settings..."
+    info "Applying desktop GNOME settings"
 
     # Disable automatic brightness adjustment (no ambient light sensor on desktops)
     gsettings set org.gnome.settings-daemon.plugins.power ambient-enabled false \
@@ -33,11 +30,11 @@ if command -v gsettings &>/dev/null; then
     gsettings set org.gnome.desktop.session idle-delay 0 \
         2>/dev/null || true
 
-    # Just Perfection - panel at the bottom, clock on the right (desktop layout)
+    # Just Perfection puts the panel at the bottom and the clock on the right, the desktop layout.
     gsettings set org.gnome.shell.extensions.just-perfection panel-position 1 \
         2>/dev/null || true
     gsettings set org.gnome.shell.extensions.just-perfection clock-menu-position 1 \
         2>/dev/null || true
 fi
 
-info "Desktop profile setup complete."
+info "The desktop profile is set up."

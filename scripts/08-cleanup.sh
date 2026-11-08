@@ -1,30 +1,21 @@
 #!/usr/bin/env bash
-# 02Gnome - Cleanup, bloat removal, NVIDIA drivers, wallpapers, reboot
-# Sourced by install.sh - do not run directly.
+# 02Gnome's cleanup, the removal of GNOME applications, NVIDIA drivers, wallpapers and the reboot.
+# install.sh sources this file, which is not run on its own.
 
-# ─── Download wallpaper collection ──────────────────────────────────────────────
 WALLPAPER_REPO="https://github.com/dharmx/walls"
 WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
 
+WANT_WALLPAPERS=false
+
 ask_download_wallpapers() {
-    echo ""
-    local do_download=false
-
-    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if gum_confirm_styled "  Download wallpaper collection to ~/Pictures/Wallpapers?"; then
-            do_download=true
-        fi
-    else
-        echo -e "${CYAN}${BOLD}Download wallpaper collection to ~/Pictures/Wallpapers?${NC} [y/N]"
-        local answer
-        read -rp "> " answer
-        case "$answer" in
-            [yY]*) do_download=true ;;
-        esac
+    if ask_yes_no yes "Download the wallpaper collection to ~/Pictures/Wallpapers?"; then
+        WANT_WALLPAPERS=true
     fi
+}
 
-    if [ "$do_download" = false ]; then
-        info "Skipping wallpaper download."
+download_wallpapers() {
+    if [ "$WANT_WALLPAPERS" = false ]; then
+        info "The wallpaper collection is skipped."
         return
     fi
 
@@ -36,14 +27,12 @@ ask_download_wallpapers() {
         }
 
         if printf '%s' "$pull_output" | grep -qi "Already up[ -]to[ -]date"; then
-            info "Wallpapers already present."
-            info "Already up to date."
+            info "The wallpaper collection is up to date."
         else
-            info "Wallpapers already present."
-            info "Pulled latest changes."
+            info "The wallpaper collection is updated."
         fi
     else
-        info "Cloning wallpaper collection..."
+        info "Downloading the wallpaper collection"
         mkdir -p "$(dirname "$WALLPAPER_DIR")"
         git clone --depth 1 "$WALLPAPER_REPO" "$WALLPAPER_DIR" \
             || warning "Failed to clone wallpaper repo."
@@ -65,30 +54,21 @@ ask_download_wallpapers() {
     fi
 }
 
+WANT_BLOAT_REMOVAL=false
 
 ask_uninstall_bloat() {
-    echo ""
-    local do_remove=false
-
-    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if gum_confirm_styled "  Uninstall GNOME bloat? (Boxes, Characters, Connections, Contacts, etc.)"; then
-            do_remove=true
-        fi
-    else
-        echo -e "${CYAN}${BOLD}Uninstall GNOME bloat?${NC} (Boxes, Characters, Connections, Contacts, etc.) [y/N]"
-        local answer
-        read -rp "> " answer
-        case "$answer" in
-            [yY]*) do_remove=true ;;
-        esac
+    if ask_yes_no yes "Uninstall the GNOME applications listed in config.sh (Boxes, Characters, Connections, Contacts and others)?"; then
+        WANT_BLOAT_REMOVAL=true
     fi
+}
 
-    if [ "$do_remove" = false ]; then
-        info "Skipping bloat removal."
+uninstall_bloat() {
+    if [ "$WANT_BLOAT_REMOVAL" = false ]; then
+        info "The GNOME applications stay installed."
         return
     fi
 
-    info "Removing GNOME bloat..."
+    info "Uninstalling the GNOME applications listed in config.sh"
 
     for entry in "${GNOME_BLOAT_APPS[@]}"; do
         local flatpak_id="${entry%%|*}"
@@ -100,7 +80,7 @@ ask_uninstall_bloat() {
 
         if [ "$flatpak_id" != "-" ]; then
             if flatpak list --app --columns=application 2>/dev/null | grep -qx "$flatpak_id"; then
-                info "Removing Flatpak: $label..."
+                info "Removing the Flatpak $label"
                 if ! flatpak uninstall -y --noninteractive "$flatpak_id" >/dev/null 2>&1; then
                     warning "Failed to remove Flatpak $label."
                 fi
@@ -119,154 +99,131 @@ ask_uninstall_bloat() {
         fi
     done
 
-    info "Bloat removal complete."
+    info "The GNOME applications are uninstalled."
 }
 
-# ─── NVIDIA driver installation ──────────────────────────────────────────────
-install_nvidia_drivers() {
-    if ! lspci | grep -qi 'nvidia'; then
-        return
-    fi
+WANT_NVIDIA=false
 
-    info "NVIDIA GPU detected: $(lspci | grep -i 'nvidia' | head -1 | sed 's/.*: //')"
-
+# Asked only on a machine with an NVIDIA GPU and no NVIDIA kernel module.
+ask_nvidia_drivers() {
+    lspci 2>/dev/null | grep -qi 'nvidia' || return 0
     if modinfo nvidia &>/dev/null; then
-        local current_ver
-        current_ver=$(modinfo -F version nvidia 2>/dev/null || echo "unknown")
-        info "NVIDIA driver already installed (version $current_ver). Skipping."
-        return
+        info "The NVIDIA driver $(modinfo -F version nvidia 2>/dev/null || echo "") is installed."
+        return 0
     fi
-
-    local do_nvidia=false
-    if command -v gum &>/dev/null; then
-        if gum_confirm_styled --default=yes "  Install NVIDIA proprietary drivers?"; then
-            do_nvidia=true
-        fi
-    else
-        echo -e "${CYAN}${BOLD}Install NVIDIA proprietary drivers?${NC} [Y/n]"
-        read -r answer
-        case "$answer" in
-            [nN]*) ;;
-            *) do_nvidia=true ;;
-        esac
+    if ask_yes_no yes "Install the NVIDIA proprietary drivers for $(lspci | grep -i 'nvidia' | head -1 | sed 's/.*: //')?"; then
+        WANT_NVIDIA=true
     fi
+}
 
+install_nvidia_drivers() {
+    local do_nvidia="$WANT_NVIDIA"
     if [ "$do_nvidia" = true ]; then
         if ! command -v dnf &>/dev/null && [ "$IS_ATOMIC" != true ]; then
-            warning "NVIDIA driver install via RPM Fusion is only supported on Fedora/RPM-based systems."
+            warning "The NVIDIA drivers come from RPM Fusion, which serves Fedora and its atomic variants alone."
             return
         fi
-        ensure_rpmfusion || { warning "Could not enable RPM Fusion - skipping NVIDIA driver install."; return; }
+        ensure_rpmfusion || { warning "RPM Fusion could not be enabled, so the NVIDIA drivers are skipped."; return; }
         if [ "$IS_ATOMIC" = true ]; then
-            info "Installing NVIDIA drivers via rpm-ostree (akmod-nvidia + CUDA + VA-API)..."
-            rpm-ostree install --idempotent --allow-inactive -y \
+            info "Layering the NVIDIA drivers, akmod-nvidia with CUDA and VA-API"
+            sudo rpm-ostree install --idempotent --allow-inactive -y \
                 akmod-nvidia xorg-x11-drv-nvidia-cuda nvidia-vaapi-driver libva-utils \
                 || warning "NVIDIA driver layering failed."
-            info "NVIDIA drivers layered. A reboot is required to build the kernel module."
+            info "The NVIDIA drivers are layered, and the kernel module builds at the reboot."
         else
-            info "Installing NVIDIA drivers (akmod-nvidia + CUDA + VA-API)..."
+            info "Installing the NVIDIA drivers, akmod-nvidia with CUDA and VA-API"
             sudo dnf install -y akmod-nvidia || warning "Failed to install akmod-nvidia."
             sudo dnf install -y xorg-x11-drv-nvidia-cuda || warning "Failed to install nvidia-cuda."
             sudo dnf install -y nvidia-vaapi-driver libva-utils || warning "Failed to install VA-API drivers."
-            info "NVIDIA drivers installed. A reboot is required to build the kernel module."
+            info "The NVIDIA drivers are installed, and the kernel module builds at the reboot."
         fi
     fi
 }
 
-# ─── Final system cleanup & update ──────────────────────────────────────────────
 final_cleanup() {
-    info "Running final system cleanup & update..."
+    info "Running final system cleanup & update"
 
     if [ "$IS_ATOMIC" = true ]; then
-        info "Upgrading base image (rpm-ostree)..."
-        rpm-ostree upgrade || warning "rpm-ostree upgrade encountered an error."
-        info "Cleaning up rpm-ostree..."
-        rpm-ostree cleanup -m 2>/dev/null || true
+        info "Upgrading base image (rpm-ostree)"
+        sudo rpm-ostree upgrade || warning "rpm-ostree upgrade ended with an error."
+        info "Cleaning up rpm-ostree"
+        sudo rpm-ostree cleanup -m 2>/dev/null || true
 
     elif command -v dnf &>/dev/null; then
-        info "Upgrading packages (with refreshed metadata)..."
+        info "Upgrading packages (with refreshed metadata)"
         sudo dnf upgrade --refresh -y || warning "dnf upgrade encountered an error."
-        info "Removing unused dependencies..."
+        info "Removing unused dependencies"
         sudo dnf autoremove -y || warning "dnf autoremove encountered an error."
 
-        local old_kernels
-        old_kernels=$(dnf repoquery --installonly --latest-limit=-2 -q 2>/dev/null) || true
-        if [ -n "$old_kernels" ]; then
-            info "Removing old kernels..."
-            sudo dnf remove -y $old_kernels || warning "Could not remove old kernels."
+        local old_kernels=()
+        mapfile -t old_kernels < <(dnf repoquery --installonly --latest-limit=-2 -q 2>/dev/null || true)
+        if [ ${#old_kernels[@]} -gt 0 ]; then
+            info "Removing old kernels"
+            sudo dnf remove -y "${old_kernels[@]}" || warning "Could not remove old kernels."
         fi
 
-        info "Cleaning DNF cache..."
+        info "Cleaning DNF cache"
         sudo dnf clean all || warning "dnf clean encountered an error."
 
     elif command -v apt-get &>/dev/null; then
-        info "Upgrading packages..."
-        sudo apt-get update -y && sudo apt-get upgrade -y || warning "apt upgrade encountered an error."
-        info "Removing unused dependencies..."
+        info "Upgrading packages"
+        { sudo apt-get update -y && sudo apt-get upgrade -y; } || warning "apt upgrade encountered an error."
+        info "Removing unused dependencies"
         sudo apt-get autoremove -y || warning "apt autoremove encountered an error."
         sudo apt-get clean || true
 
     elif command -v pacman &>/dev/null; then
-        info "Upgrading packages..."
+        info "Upgrading packages"
         sudo pacman -Syu --noconfirm || warning "pacman update encountered an error."
 
-        local orphans
-        orphans=$(pacman -Qdtq 2>/dev/null) || true
-        if [ -n "$orphans" ]; then
-            info "Removing orphaned packages..."
-            sudo pacman -Rns --noconfirm $orphans || warning "Could not remove orphans."
+        local orphans=()
+        mapfile -t orphans < <(pacman -Qdtq 2>/dev/null || true)
+        if [ ${#orphans[@]} -gt 0 ]; then
+            info "Removing orphaned packages"
+            sudo pacman -Rns --noconfirm "${orphans[@]}" || warning "Could not remove orphans."
         fi
 
         if command -v paccache &>/dev/null; then
-            info "Cleaning pacman cache..."
+            info "Cleaning pacman cache"
             sudo paccache -rk2 2>/dev/null || true
         fi
     fi
 
     if command -v flatpak &>/dev/null; then
-        info "Updating Flatpak applications..."
+        info "Updating Flatpak applications"
         LANG=C flatpak update -y --noninteractive 2>&1 | cat
         [ "${PIPESTATUS[0]}" -eq 0 ] || warning "flatpak update encountered an error."
-        info "Removing unused Flatpak runtimes..."
+        info "Removing unused Flatpak runtimes"
         flatpak uninstall --unused -y --noninteractive >/dev/null 2>&1 || true
-        info "Repairing Flatpak installation..."
+        info "Repairing Flatpak installation"
         flatpak repair 2>/dev/null || true
     fi
 
-    info "Trimming systemd journal to 200 MB..."
+    info "Trimming systemd journal to 200 MB"
     sudo journalctl --vacuum-size=200M 2>/dev/null || true
-    info "Clearing thumbnail cache..."
+    info "Clearing thumbnail cache"
     rm -rf ~/.cache/thumbnails/* 2>/dev/null || true
-    info "Reloading systemd daemon..."
+    info "Reloading systemd daemon"
     sudo systemctl daemon-reload 2>/dev/null || true
 
     info "System cleanup complete."
 }
 
-# ─── Ask to reboot ──────────────────────────────────────────────────────────────
+WANT_REBOOT=false
+
 ask_reboot() {
-    echo ""
-    local do_reboot=false
-
-    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if gum_confirm_styled --default=no "  Reboot now to apply all changes?"; then
-            do_reboot=true
-        fi
-    else
-        echo -e "${CYAN}${BOLD}Reboot now to apply all changes?${NC} [y/N]"
-        local answer
-        read -rp "> " answer
-        case "$answer" in
-            [yY]*) do_reboot=true ;;
-        esac
-    fi
-
-    if [ "$do_reboot" = true ]; then
-        info "Rebooting..."
-        sudo reboot
-    else
-        info "Skipping reboot. Please reboot manually for all changes to take effect."
-        echo ""
+    if ask_yes_no no "Reboot when the installation ends?"; then
+        WANT_REBOOT=true
     fi
 }
 
+reboot_if_chosen() {
+    echo ""
+    if [ "$WANT_REBOOT" = true ]; then
+        info "Rebooting"
+        sudo reboot
+    else
+        info "Reboot for every change to take effect."
+        echo ""
+    fi
+}

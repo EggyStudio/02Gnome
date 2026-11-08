@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
-# 02Gnome - Docker, Tailscale, and Docker Compose services
-# Sourced by install.sh - do not run directly.
+# 02Gnome's Docker, Tailscale and Docker Compose services.
+# install.sh sources this file, which is not run on its own.
 
-# ─── Install Docker ────────────────────────────────────────────────────────────
 install_docker() {
     if command -v docker &>/dev/null; then
         info "Docker is already installed."
         return
     fi
 
-    info "Installing Docker..."
+    info "Installing Docker"
 
     if [ "$IS_ATOMIC" = true ]; then
-        rpm-ostree uninstall -y podman-docker 2>/dev/null || true
+        sudo rpm-ostree uninstall -y podman-docker 2>/dev/null || true
 
         local docker_repo="https://download.docker.com/linux/fedora/docker-ce.repo"
         sudo curl -fsSL "$docker_repo" -o /etc/yum.repos.d/docker-ce.repo 2>/dev/null || {
-            warning "Could not add Docker repo - skipping."
+            warning "Could not add Docker repo, so it is skipped."
             return
         }
 
@@ -26,9 +25,9 @@ install_docker() {
             sudo sed -i "s|\$releasever|${fedora_ver}|g" /etc/yum.repos.d/docker-ce.repo 2>/dev/null || true
         fi
 
-        rpm-ostree install --idempotent --allow-inactive -y \
+        sudo rpm-ostree install --idempotent --allow-inactive -y \
             docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
-            || { warning "Docker layering failed - skipping."; return; }
+            || { warning "Docker layering failed, so it is skipped."; return; }
 
         sudo systemctl enable docker 2>/dev/null || true
         sudo usermod -aG docker "$(whoami)" 2>/dev/null || true
@@ -43,7 +42,7 @@ install_docker() {
         local docker_repo="https://download.docker.com/linux/fedora/docker-ce.repo"
         sudo dnf config-manager addrepo --from-repofile="$docker_repo" \
             2>/dev/null || sudo dnf config-manager --add-repo "$docker_repo" \
-            2>/dev/null || { warning "Could not add Docker repo - skipping."; return; }
+            2>/dev/null || { warning "Could not add Docker repo, so it is skipped."; return; }
 
         if [ -f /etc/yum.repos.d/docker-ce.repo ]; then
             local fedora_ver
@@ -54,17 +53,17 @@ install_docker() {
         fi
 
         sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
-            || { warning "Docker install failed - skipping."; return; }
+            || { warning "Docker install failed, so it is skipped."; return; }
 
     elif command -v apt-get &>/dev/null; then
         curl -fsSL https://get.docker.com | bash \
-            || { warning "Docker install failed - skipping."; return; }
+            || { warning "Docker install failed, so it is skipped."; return; }
 
     elif command -v pacman &>/dev/null; then
         sudo pacman -S --noconfirm docker docker-compose \
-            || { warning "Docker install failed - skipping."; return; }
+            || { warning "Docker install failed, so it is skipped."; return; }
     else
-        warning "Unsupported package manager - skipping Docker install."
+        warning "Unsupported package manager, so Docker install is skipped."
         return
     fi
 
@@ -74,93 +73,64 @@ install_docker() {
     info "Log out and back in for group membership to take effect."
 }
 
-# ─── Install Tailscale ──────────────────────────────────────────────────────────
-install_tailscale() {
-    if command -v tailscale &>/dev/null; then
-        info "Tailscale is already installed."
-        return
-    fi
-
-    info "Installing Tailscale..."
-    curl -fsSL https://tailscale.com/install.sh | bash \
-        || { warning "Tailscale install failed - skipping."; return; }
-
-    sudo systemctl enable --now tailscaled 2>/dev/null || true
-    sudo tailscale up
-    info "Tailscale installed and started."
-}
+WANT_TAILSCALE=false
 
 ask_install_tailscale() {
-    echo ""
-
-    local want_tailscale=false
-
-    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if gum_confirm_styled --default=no "  Install Tailscale (VPN)?"; then
-            want_tailscale=true
-        fi
-    else
-        echo -e "${CYAN}${BOLD}Install Tailscale (VPN)?${NC} [y/N]"
-        local answer
-        read -rp "> " answer
-        case "$answer" in
-            [yY]*) want_tailscale=true ;;
-        esac
-    fi
-
-    if [ "$want_tailscale" = true ]; then
-        install_tailscale
-    else
-        info "Skipping Tailscale."
+    if ask_yes_no no "Install Tailscale (VPN)?"; then
+        WANT_TAILSCALE=true
     fi
 }
 
+# Signing in waits for the browser, so it is left to the user at the end of the
+# run, and the steps between run without them.
+install_tailscale() {
+    [ "$WANT_TAILSCALE" = true ] || return 0
 
-select_and_install_docker_services() {
-    echo ""
-    info "Choose Docker Compose services to deploy (optional)."
-    echo ""
+    if command -v tailscale &>/dev/null; then
+        info "Tailscale is installed."
+    else
+        info "Installing Tailscale"
+        curl -fsSL https://tailscale.com/install.sh | bash \
+            || { warning "Tailscale did not install, so it is skipped."; return; }
+    fi
 
-    local labels=()
+    sudo systemctl enable --now tailscaled 2>/dev/null || true
+    info "Tailscale runs. Sign in with sudo tailscale up once the installer ends."
+}
+
+SELECTED_DOCKER_SERVICES=()
+
+ask_docker_services() {
+    local labels=() entry
     for entry in "${DOCKER_SERVICES[@]}"; do
         labels+=("${entry%%|*}")
     done
+    mapfile -t SELECTED_DOCKER_SERVICES < <(ask_choose_many "Select Docker Compose services" none "${labels[@]}")
+}
 
-    local selected=()
-
-    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        local raw
-        raw=$(gum_choose_styled --no-limit --height=${#labels[@]} \
-            --header "  Select Docker services (↑/↓ move, Space select, Enter confirm):" \
-            "${labels[@]}") || true
-
-        if [ -n "$raw" ]; then
-            while IFS= read -r line; do
-                selected+=("$line")
-            done <<< "$raw"
-        fi
-    else
-        echo -e "${CYAN}${BOLD}Docker Compose services:${NC}"
-        for i in "${!labels[@]}"; do
-            printf "  %2d) %s\n" "$((i + 1))" "${labels[$i]}"
-        done
-        echo ""
-        echo "Enter the numbers you want (space-separated), or press Enter to skip:"
-        local choices
-        read -rp "> " choices
-        for num in $choices; do
-            if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#labels[@]}" ]; then
-                selected+=("${labels[$((num - 1))]}")
-            fi
-        done
+# Docker added in this run is not usable by the user until the next login, when
+# the docker group applies, or on an atomic system until the reboot.
+_compose_up() {
+    local dir="$1"
+    if ! command -v docker &>/dev/null; then
+        info "Docker is available after the reboot. Start the service then with docker compose up -d in $dir."
+        return
     fi
+    if docker info &>/dev/null; then
+        (cd "$dir" && docker compose up -d)
+    else
+        (cd "$dir" && sudo docker compose up -d)
+    fi
+}
 
-    if [ ${#selected[@]} -eq 0 ]; then
-        info "No Docker services selected - moving on."
+install_docker_services() {
+    if [ ${#SELECTED_DOCKER_SERVICES[@]} -eq 0 ]; then
+        info "No Docker Compose services were selected."
         return
     fi
 
-    info "Deploying ${#selected[@]} Docker service(s)..."
+    local selected=("${SELECTED_DOCKER_SERVICES[@]}")
+    info "Setting up ${#selected[@]} Docker Compose services"
 
     for sel in "${selected[@]}"; do
         for entry in "${DOCKER_SERVICES[@]}"; do
@@ -168,7 +138,7 @@ select_and_install_docker_services() {
             local dir_name="${entry##*|}"
             if [ "$sel" = "$label" ]; then
                 local target_dir="$HOME/$dir_name"
-                info "Setting up ${label} in ${target_dir}..."
+                info "Setting up ${label} in ${target_dir}"
 
                 mkdir -p "$target_dir"
                 cp "$DOTFILES_DIR/docker/$dir_name/docker-compose.yml" "$target_dir/"
@@ -177,9 +147,10 @@ select_and_install_docker_services() {
                 if [ -f "$DOTFILES_DIR/docker/$dir_name/env" ]; then
                     if [ ! -f "$target_dir/.env" ]; then
                         cp "$DOTFILES_DIR/docker/$dir_name/env" "$target_dir/.env"
+                        # Immich accepts only A-Za-z0-9 in DB_PASSWORD, so the password is hex.
                         if grep -q 'please-change-me' "$target_dir/.env" 2>/dev/null; then
                             local random_pw
-                            random_pw=$(openssl rand -base64 42 | tr -d '\n')
+                            random_pw=$(openssl rand -hex 20)
                             sed -i "s|please-change-me|${random_pw}|g" "$target_dir/.env"
                         fi
                     fi
@@ -189,11 +160,11 @@ select_and_install_docker_services() {
                     sed -i '/deploy:/,/capabilities: \[gpu\]/d' "$target_dir/docker-compose.yml" 2>/dev/null || true
                 fi
 
-                info "Starting ${label}..."
-                (cd "$target_dir" && docker compose up -d) \
-                    || warning "${label} failed to start - you can start it manually later."
+                info "Starting ${label}"
+                _compose_up "$target_dir" \
+                    || warning "${label} did not start. Start it with docker compose up -d in ${target_dir}."
 
-                info "${label} deployed. See ${target_dir}/README.md for usage."
+                info "${label} is set up, and ${target_dir}/README.md describes its use."
                 INSTALLED_DOCKER_SERVICES+=("$dir_name")
                 break
             fi
@@ -201,7 +172,6 @@ select_and_install_docker_services() {
     done
 }
 
-# ─── Create web app shortcuts for Docker services ───────────────────────────────
 create_docker_web_apps() {
     local created=false
 

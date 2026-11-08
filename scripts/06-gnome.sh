@@ -1,32 +1,31 @@
 #!/usr/bin/env bash
-# 02Gnome - GNOME desktop configuration (dconf, profile, preferences, Nautilus, etc.)
-# Sourced by install.sh - do not run directly.
+# 02Gnome's GNOME configuration, dconf, the profile, the preferences, Nautilus and the rest.
+# install.sh sources this file, which is not run on its own.
 
-# ─── Import GNOME settings via dconf ───────────────────────────────────────────
 import_gnome_settings() {
     local profile="$1"
     local dconf_dir="$DOTFILES_DIR/gnome/${profile}"
 
     if [ ! -d "$dconf_dir" ]; then
-        warning "No dconf directory found at $dconf_dir - skipping GNOME settings import."
+        warning "No dconf directory found at $dconf_dir, so GNOME settings import is skipped."
         return
     fi
 
     if ! command -v dconf &>/dev/null; then
-        warning "dconf not found - skipping GNOME settings import."
+        warning "dconf not found, so GNOME settings import is skipped."
         return
     fi
 
-    info "Importing GNOME settings for profile '${profile}'..."
+    info "Importing GNOME settings for profile '${profile}'"
 
     local count=0
     for dconf_file in "$dconf_dir"/*.dconf; do
         [ -f "$dconf_file" ] || continue
         local fname
         fname=$(basename "$dconf_file")
-        info "  Loading ${fname}..."
+        info "  Loading ${fname}"
         sed "s|DOTFILES_DIR|${DOTFILES_DIR}|g" "$dconf_file" | dconf load / || \
-            warning "Failed to load ${fname} - skipping."
+            warning "Failed to load ${fname}, so it is skipped."
         count=$((count + 1))
     done
 
@@ -37,112 +36,62 @@ import_gnome_settings() {
     fi
 }
 
-# ─── Profile selection (gum TUI or plain-text fallback) ────────────────────────
-select_profile() {
-    local profile
-
-    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        profile=$(gum_choose_styled \
-            --header "  Select a profile:" \
-            "Desktop" \
-            "Laptop" \
-            | tr '[:upper:]' '[:lower:]') || true
-    else
-        echo ""
-        echo -e "${CYAN}${BOLD}Select a profile:${NC}"
-        echo "  1) Desktop"
-        echo "  2) Laptop"
-        local choice
-        read -rp "Enter choice [1-2]: " choice
-        case "$choice" in
-            1) profile="desktop" ;;
-            2) profile="laptop"  ;;
-            *) warning "Invalid choice - defaulting to 'desktop'."; profile="desktop" ;;
-        esac
+ask_profile() {
+    local choice
+    choice=$(ask_choose_one "Select a profile:" "Desktop" "Laptop")
+    PROFILE="${choice,,}"
+    if [ -z "$PROFILE" ]; then
+        PROFILE="desktop"
+        warning "No profile was selected, so the desktop profile is used."
     fi
-
-    if [ -z "$profile" ]; then
-        warning "No profile selected - defaulting to 'desktop'."
-        profile="desktop"
-    fi
-
-    echo "$profile"
+    info "Profile ${BOLD}${PROFILE}${NC}"
 }
 
-# ─── Run profile-specific setup script ─────────────────────────────────────────
 run_profile() {
     local profile="$1"
     local script="$DOTFILES_DIR/gnome/${profile}/setup.sh"
 
     if [ ! -f "$script" ]; then
-        warning "No setup script found at $script - skipping profile setup."
+        warning "No setup script found at $script, so profile setup is skipped."
         return
     fi
 
-    info "Running ${profile} profile setup..."
+    info "Running ${profile} profile setup"
     chmod +x "$script"
     bash "$script"
 }
 
-# ─── User preferences (24h clock, auto-login, blank screen, battery) ──────────
+USER_PREF_LABELS=(
+    "Show the clock in 24-hour format"
+    "Hide the weekday in the clock"
+    "Log in automatically without a password"
+    "Keep the screen on and undimmed when idle"
+    "Turn off the automatic screen lock"
+    "Start with Bluetooth off"
+    "Set the regional formats from the time zone"
+)
+USER_PREFS=()
+
 ask_user_preferences() {
-    echo ""
-    info "Configuring user preferences..."
-    echo ""
+    mapfile -t USER_PREFS < <(ask_choose_many "Select preferences" all "${USER_PREF_LABELS[@]}")
+}
 
-    local prefs=()
-    local pref_labels=(
-        "Use 24-hour time format"
-        "Hide weekday in clock"
-        "Login without asking for password (auto-login)"
-        "Blank screen: Never (display stays on)"
-        "Disable automatic screen lock"
-        "Start with Bluetooth off"
-        "Set regional formats from timezone"
-    )
+apply_user_preferences() {
+    info "Applying the user preferences"
 
-    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        local selected_default
-        selected_default=$(IFS=,; echo "${pref_labels[*]}")
-
-        local raw
-        raw=$(gum_choose_styled --no-limit \
-            --selected="$selected_default" \
-            --header "  Select preferences (↑/↓ move, Space toggle, Enter confirm):" \
-            "${pref_labels[@]}") || true
-        if [ -n "$raw" ]; then
-            while IFS= read -r line; do
-                prefs+=("$line")
-            done <<< "$raw"
-        fi
-    else
-        echo -e "${CYAN}${BOLD}User preferences:${NC}"
-        for i in "${!pref_labels[@]}"; do
-            printf "  %2d) %s\n" "$((i + 1))" "${pref_labels[$i]}"
-        done
-        echo ""
-        echo "Enter numbers to enable (space-separated), or press Enter to skip:"
-        local choices
-        read -rp "> " choices
-        for num in $choices; do
-            if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#pref_labels[@]}" ]; then
-                prefs+=("${pref_labels[$((num - 1))]}")
-            fi
-        done
-    fi
-
-    for pref in "${prefs[@]}"; do
+    local pref
+    for pref in "${USER_PREFS[@]+"${USER_PREFS[@]}"}"; do
         case "$pref" in
-            "Use 24-hour time format")
-                info "Setting 24-hour time format..."
+            "Show the clock in 24-hour format")
+                info "Showing the clock in 24-hour format"
                 gsettings set org.gnome.desktop.interface clock-format '24h' 2>/dev/null || true
                 ;;
-            "Hide weekday in clock")
-                info "Hiding weekday in clock..."
+            "Hide the weekday in the clock")
+                info "Hiding the weekday in the clock"
                 gsettings set org.gnome.desktop.interface clock-show-weekday false 2>/dev/null || true
                 ;;
-            "Login without asking for password (auto-login)")
-                info "Enabling automatic login..."
+            "Log in automatically without a password")
+                info "Turning on automatic login"
                 local current_user
                 current_user=$(whoami)
                 local gdm_conf=""
@@ -162,34 +111,34 @@ ask_user_preferences() {
                 fi
                 info "Automatic login enabled for user '${current_user}'."
                 ;;
-            "Blank screen: Never (display stays on)")
-                info "Setting blank screen to Never..."
+            "Keep the screen on and undimmed when idle")
+                info "Keeping the screen on and undimmed when idle"
                 gsettings set org.gnome.desktop.session idle-delay 0 2>/dev/null || true
                 gsettings set org.gnome.settings-daemon.plugins.power idle-dim false 2>/dev/null || true
                 ;;
-            "Disable automatic screen lock")
-                info "Disabling automatic screen lock..."
+            "Turn off the automatic screen lock")
+                info "Turning off the automatic screen lock"
                 gsettings set org.gnome.desktop.screensaver lock-enabled false 2>/dev/null || true
                 ;;
             "Start with Bluetooth off")
-                info "Disabling Bluetooth on startup..."
+                info "Turning off Bluetooth at startup"
                 sudo systemctl disable bluetooth 2>/dev/null || true
                 sudo rfkill block bluetooth 2>/dev/null || true
                 ;;
-            "Set regional formats from timezone")
-                info "Detecting timezone and setting regional formats..."
+            "Set the regional formats from the time zone")
+                info "Setting the regional formats from the time zone"
                 local tz=""
                 tz=$(timedatectl show --property=Timezone --value 2>/dev/null) || true
                 if [ -z "$tz" ]; then
                     tz=$(cat /etc/timezone 2>/dev/null) || true
                 fi
                 if [ -z "$tz" ]; then
-                    warning "Could not detect timezone - skipping regional format."
+                    warning "Could not detect timezone, so regional format is skipped."
                 else
                     local cc=""
                     cc=$(awk -v tz="$tz" '$3 == tz { print $1; exit }' /usr/share/zoneinfo/zone.tab 2>/dev/null) || true
                     if [ -z "$cc" ]; then
-                        warning "Could not determine country for timezone $tz - skipping."
+                        warning "Could not determine country for timezone $tz, so it is skipped."
                     else
                         local region_locale=""
                         region_locale=$(locale -a 2>/dev/null \
@@ -202,7 +151,7 @@ ask_user_preferences() {
                             info "Regional format set to $region_locale."
                             info "Timezone: $tz, country: $cc."
                         else
-                            warning "No UTF-8 locale found for country $cc - skipping."
+                            warning "No UTF-8 locale found for country $cc, so it is skipped."
                         fi
                     fi
                 fi
@@ -210,14 +159,13 @@ ask_user_preferences() {
         esac
     done
 
-    if [ ${#prefs[@]} -eq 0 ]; then
-        info "No preferences selected - using defaults."
+    if [ ${#USER_PREFS[@]} -eq 0 ]; then
+        info "No preferences were selected, so GNOME's defaults stand."
     fi
 }
 
-# ─── Nautilus (Files) configuration ─────────────────────────────────────────────
 configure_nautilus() {
-    info "Configuring Nautilus (Files)..."
+    info "Configuring Nautilus (Files)"
 
     gsettings set org.gnome.nautilus.preferences sort-directories-first true 2>/dev/null || true
     gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view' 2>/dev/null || true
@@ -264,11 +212,10 @@ configure_nautilus() {
     info "Nautilus configuration complete."
 }
 
-# ─── Create ~/Templates for right-click "New Document" menu ─────────────────────
 setup_templates() {
     local tpl_dir
     tpl_dir=$(xdg-user-dir TEMPLATES 2>/dev/null || echo "$HOME/Templates")
-    info "Setting up Templates directory at ${tpl_dir}..."
+    info "Setting up Templates directory at ${tpl_dir}"
 
     mkdir -p "$tpl_dir"
 
@@ -305,29 +252,26 @@ setup_templates() {
 HTML
     fi
 
-    info "Templates directory ready ($(ls "$tpl_dir" | wc -l) templates)."
+    info "The templates folder holds $(find "$tpl_dir" -mindepth 1 -maxdepth 1 | wc -l) templates."
 }
 
-# ─── Configure app defaults (Terminal, Text Editor) ─────────────────────────────
 configure_app_defaults() {
-    info "Configuring app defaults..."
+    info "Configuring app defaults"
     gsettings set org.gnome.Ptyxis restore-session false 2>/dev/null || true
     gsettings set org.gnome.Ptyxis restore-window-size false 2>/dev/null || true
     gsettings set org.gnome.TextEditor restore-session false 2>/dev/null || true
     info "App defaults configured."
 }
 
-# ─── Reset app grid ─────────────────────────────────────────────────────────────
 reset_app_grid() {
-    info "Resetting app grid to flat alphabetical layout..."
+    info "Resetting app grid to flat alphabetical layout"
     gsettings reset org.gnome.shell app-picker-layout 2>/dev/null || true
     dconf reset /org/gnome/shell/app-picker-layout 2>/dev/null || true
     gsettings set org.gnome.desktop.app-folders folder-children '@as []' 2>/dev/null || true
     dconf reset -f /org/gnome/desktop/app-folders/folders/ 2>/dev/null || true
     dconf write /org/gnome/desktop/app-folders/folder-children '@as []' 2>/dev/null || true
-    info "App grid reset - all apps will appear in a single alphabetical view."
+    info "The app grid is reset, and every app appears in one alphabetical view."
 }
-
 
 _resolve_desktop_file() {
     local flatpak_id="$1"
@@ -390,13 +334,12 @@ pin_optional_apps_to_favorites() {
     fi
 }
 
-# ─── Register OpenCode shortcut (Super+C) if installed ─────────────────────────
 register_opencode_shortcut() {
     if ! command -v opencode &>/dev/null; then
         return
     fi
 
-    info "Registering Super+C shortcut for OpenCode..."
+    info "Registering Super+C shortcut for OpenCode"
 
     local current
     current=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings 2>/dev/null) || return 0
@@ -404,7 +347,7 @@ register_opencode_shortcut() {
     local path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/"
 
     if echo "$current" | grep -q "custom2"; then
-        info "Custom keybinding slot custom2 already in use - skipping."
+        info "The custom keybinding slot custom2 is in use, so the OpenCode shortcut is skipped."
         return
     fi
 

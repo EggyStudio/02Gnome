@@ -1,20 +1,18 @@
 #!/usr/bin/env bash
-# 02Gnome - Laptop profile setup
+# 02Gnome's setup of the laptop profile.
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# This script is invoked automatically by install.sh when the "Laptop" profile
-# is selected.  It applies GNOME settings optimised for battery life and mobile
-# use.
+# install.sh runs this script for the laptop profile. It applies the GNOME
+# settings for battery life and a touchpad.
 
 set -euo pipefail
 
 info() { echo -e "\033[0;36m[INFO]\033[0m  $*"; }
 
-info "Applying Laptop profile settings..."
+info "Applying Laptop profile settings"
 
-# ─── Laptop-specific GNOME tweaks ──────────────────────────────────────────────
 if command -v gsettings &>/dev/null; then
-    info "Applying laptop GNOME settings..."
+    info "Applying laptop GNOME settings"
 
     # Enable automatic brightness via ambient light sensor
     gsettings set org.gnome.settings-daemon.plugins.power ambient-enabled true \
@@ -40,11 +38,11 @@ if command -v gsettings &>/dev/null; then
     gsettings set org.gnome.desktop.session idle-delay 300 \
         2>/dev/null || true
 
-    # Just Perfection - panel at the top, clock centered (laptop default)
+    # Just Perfection puts the panel at the top and the clock in the center, the laptop default.
     gsettings set org.gnome.shell.extensions.just-perfection panel-position 0 \
         2>/dev/null || true
-    gsettings set org.gnome.shell.extensions.just-perfection clock-menu-position 1 \
+    gsettings set org.gnome.shell.extensions.just-perfection clock-menu-position 0 \
         2>/dev/null || true
 fi
 
-info "Laptop profile setup complete."
+info "The laptop profile is set up."

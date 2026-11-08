@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 02Gnome (ZeroToGnome) - GNOME Desktop Automation Installer
+# 02Gnome, an installer that configures a GNOME desktop in one run.
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Usage (one-liner):
@@ -11,10 +11,10 @@ REPO_URL="https://github.com/EggyStudio/02Gnome"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 GUM_AVAILABLE=true
 USE_OLED=false
+PROFILE=desktop
 INSTALLED_DOCKER_SERVICES=()
 IS_ATOMIC=false
 
-# ─── Source all module scripts from the cloned repo ────────────────────────────
 _source_modules() {
     local script_dir="$DOTFILES_DIR/scripts"
     if [ ! -d "$script_dir" ]; then
@@ -22,17 +22,25 @@ _source_modules() {
         exit 1
     fi
 
+    # shellcheck source=scripts/01-common.sh
     source "$script_dir/01-common.sh"
+    # shellcheck source=scripts/02-bootstrap.sh
     source "$script_dir/02-bootstrap.sh"
+    # shellcheck source=scripts/03-docker.sh
     source "$script_dir/03-docker.sh"
+    # shellcheck source=scripts/04-extensions.sh
     source "$script_dir/04-extensions.sh"
+    # shellcheck source=scripts/05-apps.sh
     source "$script_dir/05-apps.sh"
+    # shellcheck source=scripts/06-gnome.sh
     source "$script_dir/06-gnome.sh"
+    # shellcheck source=scripts/07-themes.sh
     source "$script_dir/07-themes.sh"
+    # shellcheck source=scripts/08-cleanup.sh
     source "$script_dir/08-cleanup.sh"
 }
 
-# ─── Minimal bootstrap (needed before modules are available) ───────────────────
+# These stand in for the modules' helpers until the modules are sourced.
 _CYAN='\033[0;36m'
 _BOLD='\033[1m'
 _NC='\033[0m'
@@ -53,9 +61,12 @@ _early_detect_atomic() {
 
 _early_install_git() {
     if command -v git &>/dev/null; then return; fi
-    info "Installing git..."
+    info "Installing git"
     if [ "$IS_ATOMIC" = true ]; then
-        rpm-ostree install --idempotent --allow-inactive -y git 2>/dev/null || true
+        # Every rpm-ostree call runs through sudo, as root, which polkit does not
+        # question. Run as the user, rpm-ostree asks polkit, whose dialog would
+        # stop the run at that step.
+        sudo rpm-ostree install --idempotent --allow-inactive -y git 2>/dev/null || true
     elif command -v dnf &>/dev/null; then
         sudo dnf install -y git
     elif command -v apt-get &>/dev/null; then
@@ -68,15 +79,39 @@ _early_install_git() {
     fi
 }
 
+# An existing clone is updated only by a fast-forward. A clone whose history no
+# longer leads to the repository's stops the run with the steps to replace it,
+# since a reset would discard the user's edits to config.sh.
 _early_clone_repo() {
-    if [ -d "$DOTFILES_DIR/.git" ]; then
-        git -C "$DOTFILES_DIR" pull --ff-only -q
-    else
+    if [ ! -d "$DOTFILES_DIR/.git" ]; then
         git clone -q "$REPO_URL" "$DOTFILES_DIR"
+        return
     fi
+
+    if ! git -C "$DOTFILES_DIR" fetch -q origin; then
+        warning "The repository could not be fetched, so the clone at $DOTFILES_DIR runs as it is."
+        return
+    fi
+
+    local upstream
+    upstream=$(git -C "$DOTFILES_DIR" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null) \
+        || upstream="origin/main"
+
+    if git -C "$DOTFILES_DIR" merge-base --is-ancestor HEAD "$upstream"; then
+        if git -C "$DOTFILES_DIR" merge --ff-only -q "$upstream" 2>/dev/null; then
+            return
+        fi
+        error "The clone at $DOTFILES_DIR has edits that the update would overwrite."
+        error "Commit or move aside the edited files, carrying edits to config.sh over by hand, then run the installer again."
+        exit 1
+    fi
+
+    error "The clone at $DOTFILES_DIR no longer follows the repository's history."
+    error "Move it aside, for example with mv $DOTFILES_DIR $DOTFILES_DIR.old, or remove it, then run the installer again."
+    error "Edits to config.sh in the old clone are carried over to the new one by hand."
+    exit 1
 }
 
-# ─── Main ──────────────────────────────────────────────────────────────────────
 main() {
     echo ""
     echo -e "${_CYAN}${_BOLD}"
@@ -90,138 +125,131 @@ main() {
 BANNER
     echo -e "${_NC}"
 
-    # 0. Detect atomic/immutable Fedora
+    # 1. Atomic Fedora is detected, git installed and this repository cloned,
+    # before the modules can be sourced.
     _early_detect_atomic
-
-    # 1. Bootstrap: git + clone (before modules can be sourced)
     _early_install_git
     _early_clone_repo
 
-    # 2. Source user configuration, then all modules
+    # 2. The configuration and the modules.
+    # shellcheck source=config.sh
     source "$DOTFILES_DIR/config.sh"
     _source_modules
 
-    # 3. Bootstrap tooling (gum TUI)
+    # 3. Sudo's password, then gum for the questions.
+    start_sudo_keepalive
     install_gum
 
-    # 4. Show info & ask user before starting
+    # 4. Where the lists live, and whether to start.
     echo ""
-    info "Repository cloned to ${BOLD}${DOTFILES_DIR}${NC}"
+    info "The repository is in ${BOLD}${DOTFILES_DIR}${NC}."
+    info "The lists of applications, extensions and services are in ${BOLD}${DOTFILES_DIR}/config.sh${NC},"
+    info "and each profile's GNOME settings in ${BOLD}${DOTFILES_DIR}/gnome/<profile>/${NC}."
     echo ""
-    info "Customise your installation by editing:"
-    info "  ${BOLD}${DOTFILES_DIR}/config.sh${NC}"
-    info "  ${BOLD}${DOTFILES_DIR}/gnome/<profile>/${NC}"
-    echo ""
-    info "ESSENTIAL_APPS, OPTIONAL_APPS, OPTIONAL_PIN_ORDER, DOCKER_SERVICES"
-    info "GNOME_EXTENSIONS, GNOME_EXTENSIONS_DISABLED, GNOME_BLOAT_APPS"
-    echo ""
-
-    local do_continue=true
-    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if ! gum_confirm_styled --default=yes "  Start installation?"; then
-            do_continue=false
-        fi
-    else
-        echo -e "${CYAN}${BOLD}Start installation?${NC} [Y/n]"
-        local answer
-        read -rp "> " answer
-        case "$answer" in
-            [nN]*) do_continue=false ;;
-        esac
-    fi
-
-    if [ "$do_continue" = false ]; then
-        info "Installation cancelled. Edit config.sh, then re-run this script."
+    if ! ask_yes_no yes "Start the installation?"; then
+        info "The installation is canceled. Edit config.sh and run the installer again."
         exit 0
     fi
 
-    # 5. Profile selection
-    local profile
-    profile=$(select_profile)
-    info "Selected profile: ${BOLD}${profile}${NC}"
+    # 5. Every question, so the steps after them run without the user.
+    echo ""
+    ask_profile
+    ask_install_tailscale
+    ask_oled_preference
+    ask_user_preferences
+    ask_download_wallpapers
+    ask_uninstall_bloat
+    ask_optional_apps
+    ask_docker_services
+    ask_nvidia_drivers
+    ask_reboot
+    echo ""
+    info "The answers are complete, and the installation runs without further questions."
+    echo ""
 
-    # 6. System update (dnf + flatpak)
+    # 6. System update
     system_update
 
-    # 7. Core setup
+    # 7. Core tools
     install_flatpak
     install_gnome_menus
     install_docker
-    ask_install_tailscale
+    install_tailscale
     install_fastfetch
 
-    # 7. Apply profile-specific dconf settings (base layer)
-    import_gnome_settings "$profile"
-    run_profile "$profile"
+    # 8. The profile's GNOME settings and setup script
+    import_gnome_settings "$PROFILE"
+    run_profile "$PROFILE"
 
-    # 8. Essential Flatpaks & GNOME extensions
+    # 9. Essential Flatpaks and GNOME Shell extensions, then the profile's
+    # settings again, since enabling an extension rewrites the enabled list.
     install_essential_flatpaks
     install_gnome_extensions
+    wait_for_extension_settings
+    import_gnome_settings "$PROFILE"
 
-    # Re-apply dconf settings after extensions are installed
-    sleep 3
-    import_gnome_settings "$profile"
-
-    # 9. Adwaita theme setup
+    # 10. Adwaita themes
     setup_themes
 
-    # 10. Install Rewaita custom themes
+    # 11. Rewaita themes
     install_rewaita_themes
 
-    # 11. Ask Oled preference
-    ask_oled_preference
+    # 12. Oled settings
+    apply_oled_preference
 
-    # 12. Configure Add Water & Firefox
+    # 13. Add Water and Firefox
     configure_addwater
     configure_firefox
 
-    # 13. User preferences
-    ask_user_preferences
+    # 14. User preferences
+    apply_user_preferences
 
-    # 14. Nautilus configuration
+    # 15. Nautilus
     configure_nautilus
 
-    # 15. Templates
+    # 16. Templates
     setup_templates
 
-    # 16. App defaults
+    # 17. Default applications
     configure_app_defaults
 
-    # 17. Download wallpaper collection
-    ask_download_wallpapers
+    # 18. Wallpapers
+    download_wallpapers
 
-    # 18. Ask to uninstall GNOME bloat
-    ask_uninstall_bloat
+    # 19. GNOME applications removed
+    uninstall_bloat
 
-    # 19. Optional applications
-    select_and_install_optional_apps
+    # 20. Optional applications
+    install_optional_apps
 
-    # 20. Docker Compose services
-    select_and_install_docker_services
+    # 21. Docker Compose services
+    install_docker_services
 
-    # 21. Create web app shortcuts
+    # 22. Web app shortcuts
     create_docker_web_apps
 
-    # 22. Pin optional apps to dock favorites
+    # 23. Dock favorites
     pin_optional_apps_to_favorites
 
-    # 23. Register OpenCode shortcut
+    # 24. OpenCode shortcut
     register_opencode_shortcut
 
-    # 24. Reset app grid
+    # 25. App grid reset
     reset_app_grid
 
-    # 25. Detect & install NVIDIA drivers
+    # 26. NVIDIA drivers
     install_nvidia_drivers
 
-    # 26. Final system cleanup & update
+    # 27. Final update and cleanup
     final_cleanup
 
-    # 27. Ask to reboot
+    # 28. Reboot
     echo ""
-    info "Installation complete!"
-    ask_reboot
+    info "The installation is complete."
+    if [ "$WANT_TAILSCALE" = true ]; then
+        info "Sign in to Tailscale with sudo tailscale up."
+    fi
+    reboot_if_chosen
 }
-
 
 main "$@"

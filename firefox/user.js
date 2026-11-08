@@ -1,9 +1,9 @@
 /* user.js
- * GnomeBlueprint Firefox preferences
- * https://github.com/EggyStudio/GnomeBlueprint
+ * 02Gnome Firefox preferences
+ * https://github.com/EggyStudio/02Gnome
  */
 
-// ─── Firefox GNOME Theme (Add Water) ──────────────────────────────────────────
+// Firefox GNOME Theme, which Add Water installs
 // Enable custom stylesheets
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 
@@ -25,7 +25,7 @@ user_pref("browser.theme.toolbar-theme", 0);
 // Title bar integration
 user_pref("browser.tabs.inTitlebar", 1);
 
-// ─── GNOME Theme options ──────────────────────────────────────────────────────
+// GNOME Theme options
 user_pref("gnomeTheme.hideSingleTab", true);
 user_pref("gnomeTheme.normalWidthTabs", true);
 user_pref("gnomeTheme.swapTabClose", false);
@@ -42,11 +42,11 @@ user_pref("gnomeTheme.oledBlack", false);
 user_pref("gnomeTheme.noThemedIcons", false);
 user_pref("gnomeTheme.bookmarksOnFullscreen", false);
 
-// ─── Startup ──────────────────────────────────────────────────────────────────
+// Startup
 // Open previous windows and tabs
 user_pref("browser.startup.page", 3);
 
-// ─── New Tab Page ─────────────────────────────────────────────────────────────
+// New Tab page
 user_pref("browser.startup.homepage", "about:home");
 user_pref("browser.newtabpage.activity-stream.feeds.topsites", false);
 user_pref("browser.newtabpage.activity-stream.showSearch", false);
@@ -56,7 +56,7 @@ user_pref("browser.newtabpage.activity-stream.showWeather", false);
 // New tab background color (overridden to #000000 for Oled)
 user_pref("browser.display.background_color", "#2b2b2b");
 
-// ─── Disable AI / ML features ─────────────────────────────────────────────────
+// AI and machine learning features off
 user_pref("browser.ai.control.default", "blocked");
 user_pref("browser.ai.control.linkPreviewKeyPoints", "blocked");
 user_pref("browser.ai.control.pdfjsAltText", "blocked");
@@ -70,29 +70,29 @@ user_pref("browser.translations.enable", false);
 user_pref("extensions.ml.enabled", false);
 user_pref("pdfjs.enableAltText", false);
 
-// ─── Disable smart tab groups ─────────────────────────────────────────────────
+// Smart tab groups off
 user_pref("browser.tabs.groups.smart.enabled", false);
 user_pref("browser.tabs.groups.smart.userEnabled", false);
 
-// ─── Toolbar & Bookmarks ─────────────────────────────────────────────────────
+// Toolbar and bookmarks
 user_pref("browser.toolbars.bookmarks.visibility", "never");
 user_pref("browser.uiCustomization.state", '{"placements":{"widget-overflow-fixed-list":[],"unified-extensions-area":[],"nav-bar":["back-button","forward-button","stop-reload-button","customizableui-special-spring1","urlbar-container","customizableui-special-spring2","downloads-button","unified-extensions-button"],"toolbar-menubar":["menubar-items"],"TabsToolbar":["tabbrowser-tabs","new-tab-button","alltabs-button"],"PersonalToolbar":["personal-bookmarks"]},"seen":[],"dirtyAreaCache":[],"currentVersion":20,"newElementCount":0}');
 
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
+// Sidebar
 user_pref("sidebar.revamp", false);
 user_pref("sidebar.verticalTabs", false);
 
-// ─── Address bar shortcuts ────────────────────────────────────────────────────
+// Address bar shortcuts
 user_pref("browser.urlbar.shortcuts.bookmarks", false);
 user_pref("browser.urlbar.shortcuts.history", false);
 user_pref("browser.urlbar.shortcuts.tabs", false);
 user_pref("browser.urlbar.suggest.engines", false);
 
-// ─── Privacy ──────────────────────────────────────────────────────────────────
+// Privacy
 user_pref("signon.rememberSignons", false);
 user_pref("browser.vpn_promo.enabled", false);
 user_pref("browser.contentblocking.report.vpn_sub_message.enabled", false);
 user_pref("identity.fxaccounts.toolbar.enabled", false);
 
-// ─── Profiles ─────────────────────────────────────────────────────────────────
+// Profiles
 user_pref("browser.profiles.enabled", true);
