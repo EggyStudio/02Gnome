@@ -8,6 +8,9 @@ They exist so that the installer reads consistently regardless of who wrote a gi
 
 Em dashes and en dashes are not used. Neither `—` nor `–`, in any file.
 
+The middle dot `·` is not used. A row of links is separated by a space alone, a list by commas, and a
+product or a dot product is said in words, as the owner asked on 2026-11-08.
+
 The spaced hyphen ` - ` is not sentence punctuation. Replace it according to the relationship
 between the clauses.
 
