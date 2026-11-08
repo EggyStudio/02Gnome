@@ -99,7 +99,7 @@ Both profiles set these shortcuts:
 
 When the question at the start is answered yes, the installer removes these applications, as Flatpaks and as system packages:
 
-> Boxes · Calendar · Camera · Characters · Clocks · Connections · Contacts · Extensions · Disk Usage Analyzer · Document Scanner · Fedora Media Writer · Help · LibreOffice Calc, Impress and Writer · Maps · System Monitor · Tour · Weather
+> Boxes - Calendar - Camera - Characters - Clocks - Connections - Contacts - Extensions - Disk Usage Analyzer - Document Scanner - Fedora Media Writer - Help - LibreOffice Calc, Impress and Writer - Maps - System Monitor - Tour - Weather
 
 Each package's removal is run as a dry run first. When removing it would also remove `gnome-shell`, `gdm` or `mutter`, the package stays.
 
