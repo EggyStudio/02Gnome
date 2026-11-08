@@ -20,15 +20,20 @@ Works on Fedora Workstation and atomic variants (Silverblue, Bazzite), and other
 
 ## Recommended Base Install
 
-Download [**Fedora Workstation 44**](https://fedoraproject.org/workstation/download/) and flash it to a USB drive with [**Fedora Media Writer**](https://github.com/FedoraQt/MediaWriter).
-A single tool that downloads the ISO and creates a bootable USB in a few clicks.
+Download [**Fedora Workstation 45**](https://fedoraproject.org/workstation/download/) and write it to a USB drive with [**Fedora Media Writer**](https://github.com/FedoraQt/MediaWriter), which downloads the image and makes the drive bootable.
 
-> For atomic/immutable variants, grab [Silverblue](https://fedoraproject.org/silverblue/download/) or [Bazzite](https://bazzite.gg/) instead.
+> For an atomic variant, take [Silverblue](https://fedoraproject.org/atomic-desktops/silverblue/download/) or [Bazzite](https://bazzite.gg/) instead.
 
 ## Quick Installation
 
 ```bash
-curl -fsSL bit.ly/02gnome | bash
+curl -fsSL tinyurl.com/02gnome | bash
+```
+
+The same script at its full address:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/EggyStudio/02Gnome/main/install.sh | bash
 ```
 
 ![02Gnome.png](.github/assets/02gnome.png)
@@ -40,274 +45,293 @@ curl -fsSL bit.ly/02gnome | bash
 - [Laptop Profile](#laptop-profile)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Theming](#theming)
-- [Bloat Removal](#bloat-removal)
+- [Removing GNOME Applications](#removing-gnome-applications)
 - [What the Installer Does](#what-the-installer-does)
-- [Essential Applications](#essential-applications-always-installed)
-- [GNOME Shell Extensions](#gnome-shell-extensions-always-installed)
-- [Optional Applications](#optional-applications-interactive-chooser)
-- [Docker Compose Services](#docker-compose-services-interactive-chooser)
-- [Atomic Fedora Support](#atomic--immutable-fedora-support)
+- [Essential Applications](#essential-applications)
+- [GNOME Shell Extensions](#gnome-shell-extensions)
+- [Optional Applications](#optional-applications)
+- [Docker Compose Services](#docker-compose-services)
+- [Atomic Fedora Support](#atomic-fedora-support)
 - [Project Structure](#project-structure)
-- [Customisation](#customisation)
+- [Customization](#customization)
 - [License](#license)
 
 ## Desktop Profile
 
-- Panel at **bottom**, clock on the **right**
-- Notification banners in the **bottom-right** corner
-- Dynamic workspaces
-- Blank screen: never / no idle dim
-- No touchpad natural scroll / tap-to-click
+- The panel is at the **bottom**, with the clock on the **right**.
+- Notification banners appear in the **bottom right** corner.
+- Workspaces are dynamic.
+- The screen never blanks.
+- Tap to click and automatic brightness are off.
+- The power button opens the shutdown dialog.
 
 ![screenshot-desktop.png](.github/assets/screenshot-desktop.png)
 
 ## Laptop Profile
 
-- Panel at the **top**, clock in the **center**
-- Dynamic workspaces
-- Battery percentage shown, ambient brightness enabled
-- Lid close → suspend (resumes instantly on open)
-- Tap-to-click, natural scroll, two-finger scrolling
+- The panel is at the **top**, with the clock in the **center**.
+- Workspaces are dynamic.
+- Brightness follows the ambient light sensor.
+- The screen dims, then blanks after 5 minutes idle.
+- Closing the lid suspends, on battery and on AC.
+- The touchpad has tap to click, natural scrolling and two-finger scrolling.
 
 ![screenshot-laptop.png](.github/assets/screenshot-laptop.png)
 
 ## Keyboard Shortcuts
 
-These shortcuts are configured as part of the GNOME profile setup:
+Both profiles set these shortcuts:
 
-- `Super+D` show desktop
-- `Super+E` open Files
-- `Super+T` open Terminal
-- `Super+Space` open the ArcMenu runner
-- `Super+C` launch OpenCode
+- `Super+D` shows the desktop.
+- `Super+E` opens Files.
+- `Super+T` opens the terminal.
+- `Super+Space` opens the ArcMenu runner.
+- `Super+C` opens OpenCode, when OpenCode is installed.
 
 ## Theming
 
-- **adw-gtk3-dark** installed via dnf - makes GTK3 apps match GTK4 Adwaita
-- Flatpak overrides applied for `gtk-4.0` and `gtk-3.0` theme access
-- Custom **Rewaita** themes included (`themes/dark` and `themes/light`)
-- Prompts for an **Oled** preference to apply pure-black styling to Rewaita, Firefox, Terminal, and Text Editor
-- Automatically configures **Add Water** and injects `user.js` to theme and lock down Firefox (disabling AI/bloat)
+- **adw-gtk3** is installed through the system's package manager, so GTK 3 applications match libadwaita's Adwaita.
+- Flatpak applications get read access to `gtk-3.0` and `gtk-4.0` in `~/.config`.
+- The **Rewaita** themes in `assets/themes/dark` and `assets/themes/light` are copied into Rewaita's data folder, and the one for the current color scheme is applied through Rewaita's `--theme` option.
+- The **Oled** question at the start chooses the pure black dark theme, which also applies to Firefox through Add Water, to Text Editor and to the terminal.
+- **Add Water** themes Firefox, and `firefox/user.js` and `firefox/policies.json` set its preferences, search engine and toolbar.
 
-## Bloat Removal
+## Removing GNOME Applications
 
-When confirmed, the installer removes these pre-installed apps (Flatpak + RPM with safety check):
+When the question at the start is answered yes, the installer removes these applications, as Flatpaks and as system packages:
 
-> Boxes · Calendar · Camera · Characters · Clocks · Connections · Contacts · Extensions · Disk Usage Analyser · Document Scanner · Fedora Media Writer · Help · LibreOffice Calc/Impress/Writer · Maps · System Monitor · Tour · Weather
+> Boxes · Calendar · Camera · Characters · Clocks · Connections · Contacts · Extensions · Disk Usage Analyzer · Document Scanner · Fedora Media Writer · Help · LibreOffice Calc, Impress and Writer · Maps · System Monitor · Tour · Weather
 
-RPM removal runs a **dry-run first** - if removing a package would cascade into `gnome-shell`, `gdm`, or `mutter`, it is safely skipped.
+Each package's removal is run as a dry run first. When removing it would also remove `gnome-shell`, `gdm` or `mutter`, the package stays.
 
-## What the installer does
+## What the Installer Does
 
-| Step | Description |
+The installer asks every question at its start, steps 1 to 5, and runs steps 6 to 28 without
+stopping for the user. Sudo's password is asked once and kept for the whole run.
+
+| Step | What it does |
 |---|---|
-| 1 | Installs **gum** for a nice TUI experience |
-| 2 | Runs **system update** (`dnf update` + `flatpak update`) |
-| 3 | Asks you to pick a profile: **Desktop** or **Laptop** |
-| 4 | Installs **git**, **Docker**, **Tailscale**, and **fastfetch**, and sets up **Flatpak + Flathub** |
-| 5 | Imports **profile-specific dconf settings** and runs the profile setup script |
-| 6 | Installs **essential Flatpak apps** and **GNOME Shell extensions** |
-| 7 | Re-applies **dconf settings** after extensions are installed (extensions may reset defaults on first enable) |
-| 8 | Sets up **Adwaita themes** and installs **Rewaita** custom themes |
-| 9 | Asks for **Oled (pure-black) preference** and applies it to Rewaita, Firefox, Terminal, and Text Editor |
-| 10 | Configures **Add Water** and **Firefox** (injects `user.js` for privacy, deploys `policies.json` for search engine & toolbar) |
-| 11 | Lets you toggle **user preferences** (24h clock, auto-login, regional formats, etc.) |
-| 12 | Configures **Nautilus, Templates, Terminal, and Text Editor** defaults |
-| 13 | Optionally downloads a **wallpaper collection** from [dharmx/walls](https://github.com/dharmx/walls) (defaults to [m-26.jp](https://github.com/dharmx/walls/tree/main/m-26.jp) slideshow) |
-| 14 | Optionally **removes GNOME bloat** (Boxes, Calendar, Camera, Clocks, Characters, Weather, LibreOffice, etc.) |
-| 15 | Lets you pick **optional apps** (Discord, Steam, VS Code, OpenCode, etc.) |
-| 16 | Lets you pick **Docker Compose services** (Immich, Nextcloud, Ollama + Open WebUI, ZeroTier) |
-| 17 | Creates **web app shortcuts** for installed Docker services and Tailscale |
-| 18 | **Pins installed apps** to the dock (Firefox first, Files/Terminal/Software last) |
-| 19 | Registers **OpenCode shortcut** (`Super+C`) if installed |
-| 20 | **Resets the app grid** to a single flat alphabetical layout |
-| 21 | Detects **NVIDIA GPU** and installs proprietary drivers (`akmod-nvidia`, CUDA, VA-API) |
-| 22 | Runs **final system cleanup** (autoremove, old kernels, journal trim, Flatpak repair) |
+| 1 | Detects an atomic Fedora, installs **git** and clones this repository to `~/.dotfiles` |
+| 2 | Reads `config.sh` and the modules under `scripts/` |
+| 3 | Asks for sudo's password and installs **gum** for the questions, with a plain text fallback |
+| 4 | Shows where the lists live and asks whether to start |
+| 5 | Asks for the profile, **Tailscale**, the **Oled** theme, the **user preferences**, the **wallpapers**, the removal of GNOME applications, the **optional applications**, the **Docker Compose services**, the **NVIDIA drivers** where a GPU has none, and the **reboot** at the end |
+| 6 | Updates the system and the Flatpak applications |
+| 7 | Sets up **Flatpak** and Flathub, and installs **gnome-menus**, **Docker**, **Tailscale** if chosen, and **fastfetch** |
+| 8 | Imports the profile's **dconf settings** and runs its setup script |
+| 9 | Installs the **essential Flatpak applications** and the **GNOME Shell extensions**, waits for GNOME Shell's settings to settle, and imports the profile's settings again, since enabling an extension rewrites the enabled list |
+| 10 | Sets up the **Adwaita** themes for GTK 3 and GTK 4 |
+| 11 | Installs the **Rewaita** themes and applies the one for the current color scheme |
+| 12 | Applies the **Oled** choice to Add Water, Text Editor and the terminal |
+| 13 | Configures **Add Water** and **Firefox**, its `user.js` and its `policies.json` |
+| 14 | Applies the **user preferences** |
+| 15 | Configures **Nautilus** |
+| 16 | Sets up the **templates** |
+| 17 | Sets the **default applications** |
+| 18 | Downloads the **wallpaper collection** from [dharmx/walls](https://github.com/dharmx/walls) if chosen, with the [m-26.jp](https://github.com/dharmx/walls/tree/main/m-26.jp) folder as the slideshow |
+| 19 | Removes the **GNOME applications** listed in `config.sh` if chosen |
+| 20 | Installs the chosen **optional applications** |
+| 21 | Sets up and starts the chosen **Docker Compose services** |
+| 22 | Creates **web app shortcuts** for the services and Tailscale |
+| 23 | **Pins the installed applications** to the dock, Firefox first and Files, Terminal and Software last |
+| 24 | Registers the **OpenCode shortcut**, `Super+C`, if OpenCode is installed |
+| 25 | **Resets the app grid** to one alphabetical view |
+| 26 | Installs the **NVIDIA drivers** if chosen, `akmod-nvidia` with CUDA and VA-API |
+| 27 | Updates the system again and cleans up, unused dependencies, old kernels, the journal and Flatpak |
+| 28 | Reboots if chosen, and names the Tailscale sign-in if Tailscale was installed |
 
-## Essential Applications (always installed)
+## Essential Applications
 
-| Application | Flatpak ID | Description |
+These are installed on every run.
+
+| Application | Package | Description |
 |---|---|---|
-| Firefox | `firefox` (system package) | Web browser |
-| Flatseal | `com.github.tchx84.Flatseal` | Manage Flatpak permissions |
-| Extension Manager | `com.mattjakeman.ExtensionManager` | Browse & toggle GNOME extensions |
-| Pins | `io.github.fabrialberio.pinapp` | Create custom app shortcuts |
-| Add Water | `dev.qwery.AddWater` | Apply Adwaita theme to Firefox |
-| Rewaita | `io.github.swordpuffin.rewaita` | Bring color to Adwaita |
-| Mission Center | `io.missioncenter.MissionCenter` | System resource monitor |
-| Web App Hub | `org.pvermeer.WebAppHub` | Manage web applications |
+| Firefox | `firefox` (system package, Flatpak on atomic systems) | Web browser |
+| Flatseal | `com.github.tchx84.Flatseal` | Manages Flatpak permissions |
+| Extension Manager | `com.mattjakeman.ExtensionManager` | Browses and toggles GNOME extensions |
+| Pins | `io.github.fabrialberio.pinapp` | Creates application shortcuts |
+| Add Water | `dev.qwery.AddWater` | Applies the Adwaita theme to Firefox |
+| Rewaita | `io.github.swordpuffin.rewaita` | Brings color to Adwaita |
+| Mission Center | `io.missioncenter.MissionCenter` | Monitors system resources |
+| Web App Hub | `org.pvermeer.WebAppHub` | Manages web applications |
 | GNOME Tweaks | `gnome-tweaks` (system package) | Advanced GNOME settings |
-| fastfetch | `fastfetch` (system package) | System information tool |
+| fastfetch | `fastfetch` (system package) | Shows system information |
 
-## GNOME Shell Extensions (always installed)
+## GNOME Shell Extensions
 
-| Extension | UUID |
-|---|---|
-| AppIndicator | `appindicatorsupport@rgcjonas.gmail.com` |
-| ArcMenu | `arcmenu@arcmenu.com` |
-| Clipboard History | `clipboard-history@alexsaveau.dev` |
-| Dash to Dock | `dash-to-dock@micxgx.gmail.com` |
-| Gtk4 Desktop Icons NG (DING) | `gtk4-ding@smedius.gitlab.com` |
-| Just Perfection | `just-perfection-desktop@just-perfection` |
-| Logo Menu | `logomenu@aryan_k` |
-| Panel Corners | `panel-corners@aunetx` |
-| PiP on top | `pip-on-top@rafostar.github.com` |
-| Quick Settings Audio Panel | `quick-settings-audio-panel@rayzeq.github.io` |
-| Restart To | `restartto@tiagoporsch.github.io` |
-| Rounded Window Corners Reborn | `rounded-window-corners@fxgn` | *Installed but disabled by default* |
-| User Themes | `user-theme@gnome-shell-extensions.gcampax.github.com` |
-| Vitals | `Vitals@CoreCoding.com` | *Installed but disabled by default* |
-| Wallpaper Slideshow | `azwallpaper@azwallpaper.gitlab.com` |
+These are installed on every run.
 
-> Extensions that don't list the current GNOME Shell version are **automatically patched** via `metadata.json` so they load without waiting for an upstream update.
+| Extension | UUID | State |
+|---|---|---|
+| AppIndicator | `appindicatorsupport@rgcjonas.gmail.com` | Enabled |
+| ArcMenu | `arcmenu@arcmenu.com` | Enabled |
+| Clipboard History | `clipboard-history@alexsaveau.dev` | Enabled |
+| Dash to Dock | `dash-to-dock@micxgx.gmail.com` | Enabled |
+| Gtk4 Desktop Icons NG (DING) | `gtk4-ding@smedius.gitlab.com` | Enabled |
+| Just Perfection | `just-perfection-desktop@just-perfection` | Enabled |
+| Logo Menu | `logomenu@aryan_k` | Enabled |
+| Panel Corners | `panel-corners@aunetx` | Enabled |
+| PiP on top | `pip-on-top@rafostar.github.com` | Enabled |
+| Quick Settings Audio Panel | `quick-settings-audio-panel@rayzeq.github.io` | Enabled |
+| Restart To | `restartto@tiagoporsch.github.io` | Enabled |
+| Rounded Window Corners Reborn | `rounded-window-corners@fxgn` | Installed, disabled |
+| User Themes | `user-theme@gnome-shell-extensions.gcampax.github.com` | Enabled |
+| Vitals | `Vitals@CoreCoding.com` | Installed, disabled |
+| Wallpaper Slideshow | `azwallpaper@azwallpaper.gitlab.com` | Enabled |
 
-## Optional Applications (interactive chooser)
+> An installed extension whose `metadata.json` does not list the running GNOME Shell version gets that version added, so GNOME Shell loads it before its next release.
 
-Pick any combination from the TUI menu:
+## Optional Applications
+
+The question at the start offers any combination of these:
 
 | Category | Application | Source |
 |---|---|---|
-| Entertainment | Steam                                              | RPM (via RPM Fusion) |
-| Entertainment | Discord, Signal, VLC                               | Flatpak |
-| Creative | Blender, GIMP, Unity Hub                           | Flatpak |
+| Entertainment | Steam | RPM, from RPM Fusion |
+| Entertainment | Discord, Signal, VLC | Flatpak |
+| Creative | Blender, GIMP, Unity Hub | Flatpak |
 | Utilities | VS Code, JetBrains Rider, GitHub Desktop, Trayscale | Flatpak |
-| Developer | Claude (AI assistant)                              | Script |
-| Developer | OpenCode (AI coding agent)                         | Script |
-| Runtimes | .NET SDK & Runtimes (LTS + STS)                    | Script |
+| Developer | Claude (AI assistant) | Script |
+| Developer | OpenCode (AI coding agent) | Script |
+| Runtimes | .NET SDK and runtimes, LTS and STS | Script |
 
-Installed optional apps are automatically **pinned to the dock**.
+The installed optional applications are **pinned to the dock**.
 
-## Docker Compose Services (interactive chooser)
+## Docker Compose Services
 
-Pick any combination from the TUI menu - selected services are copied to your home directory and started automatically:
+The question at the start offers any combination of these. Each chosen service is copied to a folder in the home folder and started.
 
-| Service | Directory | Address | Description |
+| Service | Folder | Address | Description |
 |---|---|---|---|
-| Immich | `~/immich` | http://localhost:2283                                | Self-hosted photo & video management |
-| Nextcloud | `~/nextcloud` | http://localhost:8080                                | Self-hosted file sync & collaboration |
-| Ollama + Open WebUI | `~/ollama` | http://localhost:3000                                | Local LLM inference with web chat UI |
-| ZeroTier One | `~/zerotierone` | [central.zerotier.com](https://central.zerotier.com) | Peer-to-peer VPN mesh network |
+| Immich | `~/immich` | http://localhost:2283 | Self-hosted photo and video management |
+| Nextcloud | `~/nextcloud` | http://localhost:8080 | Self-hosted file sync and collaboration |
+| Ollama + Open WebUI | `~/ollama` | http://localhost:3000 | Local LLM inference with a web chat interface |
+| ZeroTier One | `~/zerotierone` | [central.zerotier.com](https://central.zerotier.com) | Peer-to-peer virtual network |
 
-Each directory contains a `docker-compose.yml` and a `README.md` with usage instructions.
+Each folder holds the service's `docker-compose.yml` and a `README.md`, which names the versions the images are pinned to and what an earlier install does to upgrade. The database passwords in `.env` are generated at the install, and an existing `.env` is kept.
 
-**Common commands** (run from the service directory):
+These commands run in a service's folder:
 
 ```bash
-docker compose up -d      # Start (detached)
+docker compose up -d      # Start in the background
 docker compose down       # Stop
-docker compose pull       # Update to latest version
-docker compose up -d      # Restart with new images
+docker compose pull       # Pull the updates within the pinned versions
+docker compose up -d      # Restart with the pulled images
 ```
 
-## Atomic / Immutable Fedora Support
+## Atomic Fedora Support
 
-02Gnome automatically detects atomic Fedora variants (Silverblue, Bazzite, etc.) via `/run/ostree-booted` and adapts accordingly:
+The installer detects an atomic Fedora variant, such as Silverblue or Bazzite, by `/run/ostree-booted` and adapts these steps:
 
-| Area | Traditional Fedora | Atomic Fedora |
+| Area | Fedora Workstation | Atomic Fedora |
 |---|---|---|
 | System packages | `dnf install` | `rpm-ostree install --idempotent` |
 | System updates | `dnf update` | `rpm-ostree upgrade` |
-| Package removal | `dnf remove` (with dry-run safety) | `rpm-ostree uninstall` / `override remove` |
+| Package removal | `dnf remove`, with a dry run first | `rpm-ostree uninstall` or `override remove` |
 | Firefox | RPM package | Flatpak (`org.mozilla.firefox`) |
-| Docker | DNF + Docker CE repo | rpm-ostree layering + Docker CE repo |
-| NVIDIA drivers | `akmod-nvidia` via DNF | `akmod-nvidia` via rpm-ostree |
-| RPM Fusion | `dnf install` RPM | `rpm-ostree install` RPM |
-| Bloat removal | `dnf remove` | `rpm-ostree override remove` |
-| gum (TUI) | DNF + Charm repo | Pre-built binary to `~/.local/bin` |
-| Flatpak apps | Same | Same |
+| Docker | DNF and the Docker CE repository | rpm-ostree layering and the Docker CE repository |
+| NVIDIA drivers | `akmod-nvidia` through DNF | `akmod-nvidia` through rpm-ostree |
+| RPM Fusion | `dnf install` of its RPM | `rpm-ostree install` of its RPM |
+| gum | DNF and the Charm repository | The release binary in `~/.local/bin` |
+| Flatpak applications | Same | Same |
 | GNOME extensions | Same | Same |
-| dconf / gsettings | Same | Same |
+| dconf and gsettings | Same | Same |
 
-> **Note:** On atomic systems, `rpm-ostree` changes require a **reboot** to take effect. The installer will prompt you to reboot at the end.
+> On an atomic system, an rpm-ostree change takes effect at the next boot, so Docker and the Compose services start after the reboot, which the question at the start can schedule for the end of the run.
 
 ## Project Structure
 
 ```
 02Gnome/
-├── install.sh                  # Root installer (curl | bash)
-├── config.sh                   # User configuration (apps, extensions, services)
+├── install.sh                  # The installer, run through curl | bash
+├── config.sh                   # The lists of applications, extensions, removals and services
+├── AGENTS.md                   # The repository's layout and conventions
+├── .github/
+│   ├── assets/                 # The README's pictures
+│   ├── COMMITS.md              # How work reaches the history
+│   ├── REVIEW.md               # The review and its items
+│   └── STYLE.md                # The rules for comments, messages and Markdown
 ├── assets/
 │   ├── icons/
 │   │   ├── immich.png              # Immich web app icon
 │   │   ├── nextcloud.png           # Nextcloud web app icon
 │   │   ├── open-webui-light.png    # Open WebUI web app icon
 │   │   ├── tailscale-light.png     # Tailscale web app icon
-│   │   ├── tux-logo.svg            # Tux (Linux) logo icon
+│   │   ├── tux-logo.svg            # Tux logo
 │   │   └── zerotier.png            # ZeroTier web app icon
 │   └── themes/
-│       ├── dark/                   # Default and Oled pure-black CSS themes
-│       └── light/                  # Default light CSS theme
+│       ├── dark/                   # The default and the pure black Rewaita themes
+│       └── light/                  # The default light Rewaita theme
 ├── docker/
 │   ├── immich/
-│   │   ├── docker-compose.yml  # Immich photo management stack
-│   │   ├── env                 # Immich configuration (copied as .env)
+│   │   ├── docker-compose.yml  # Immich's release file
+│   │   ├── env                 # Immich's settings, copied as .env
 │   │   └── README.md
 │   ├── nextcloud/
-│   │   ├── docker-compose.yml  # Nextcloud + PostgreSQL + Redis stack
-│   │   ├── env                 # Nextcloud configuration (copied as .env)
+│   │   ├── docker-compose.yml  # Nextcloud, PostgreSQL and Redis
+│   │   ├── env                 # Nextcloud's settings, copied as .env
 │   │   └── README.md
 │   ├── ollama/
-│   │   ├── docker-compose.yml  # Ollama + Open WebUI containers
+│   │   ├── docker-compose.yml  # Ollama and Open WebUI
 │   │   └── README.md
 │   └── zerotierone/
-│       ├── docker-compose.yml  # ZeroTier One container
+│       ├── docker-compose.yml  # ZeroTier One
 │       └── README.md
 ├── firefox/
-│   ├── policies.json           # Enterprise policies (search engine, toolbar)
-│   └── user.js                 # Privacy, theming, and UI settings for Firefox
+│   ├── policies.json           # Enterprise policies, the search engine and the toolbar
+│   └── user.js                 # Privacy, theme and interface preferences
 ├── gnome/
 │   ├── desktop/
-│   │   ├── 01-interface.dconf  # Desktop UI & appearance settings
+│   │   ├── 01-interface.dconf  # Interface and appearance
 │   │   ├── 02-shortcuts.dconf  # Keyboard shortcuts
-│   │   ├── 03-dock.dconf       # Dash to Dock configuration
-│   │   ├── 04-extensions.dconf # Extension-specific settings
-│   │   ├── 05-apps.dconf       # App defaults (Terminal, Text Editor, etc.)
-│   │   └── setup.sh            # Desktop-specific setup script
+│   │   ├── 03-dock.dconf       # Dash to Dock
+│   │   ├── 04-extensions.dconf # The extensions' settings
+│   │   ├── 05-apps.dconf       # Application defaults, the terminal and Text Editor among them
+│   │   └── setup.sh            # The desktop profile's setup
 │   └── laptop/
-│       ├── 01-interface.dconf  # Laptop UI & appearance settings
+│       ├── 01-interface.dconf  # Interface and appearance
 │       ├── 02-shortcuts.dconf  # Keyboard shortcuts
-│       ├── 03-dock.dconf       # Dash to Dock configuration
-│       ├── 04-extensions.dconf # Extension-specific settings
-│       ├── 05-apps.dconf       # App defaults (Terminal, Text Editor, etc.)
-│       └── setup.sh            # Laptop-specific setup script
+│       ├── 03-dock.dconf       # Dash to Dock
+│       ├── 04-extensions.dconf # The extensions' settings
+│       ├── 05-apps.dconf       # Application defaults, the terminal and Text Editor among them
+│       └── setup.sh            # The laptop profile's setup
 ├── scripts/
-│   ├── 01-common.sh            # Colors, helpers, package management
-│   ├── 02-bootstrap.sh         # System update, Flatpak, Docker, Tailscale
-│   ├── 03-docker.sh            # Docker Compose service management
-│   ├── 04-extensions.sh        # GNOME Shell extension installer
-│   ├── 05-apps.sh              # Essential & optional app installation
-│   ├── 06-gnome.sh             # dconf import, profile runner, preferences
-│   ├── 07-themes.sh            # Adwaita & Rewaita theme setup
-│   └── 08-cleanup.sh           # Final cleanup, NVIDIA drivers, reboot
+│   ├── 01-common.sh            # Colors, the questions, sudo, package helpers
+│   ├── 02-bootstrap.sh         # git, gum, Flatpak, the system update
+│   ├── 03-docker.sh            # Docker, Tailscale, the Compose services, web app shortcuts
+│   ├── 04-extensions.sh        # GNOME Shell extensions
+│   ├── 05-apps.sh              # Essential and optional applications
+│   ├── 06-gnome.sh             # dconf, the profile, preferences, Nautilus, templates, the dock
+│   ├── 07-themes.sh            # Adwaita, Rewaita, Oled, Add Water, Firefox
+│   └── 08-cleanup.sh           # Wallpapers, removals, NVIDIA drivers, cleanup, reboot
 ├── LICENSE                     # GNU GPL v3.0
 └── README.md
 ```
 
-## Customisation
+## Customization
 
-### Adding optional apps
+The lists live in `config.sh`, which the installer reads before its modules:
 
-Edit the `OPTIONAL_APPS` array in `install.sh`. Format: `"Display Label|type:identifier"` where type is `flatpak` or `script`.
+| Array | Holds | Form of an entry |
+|---|---|---|
+| `ESSENTIAL_APPS` | Flatpaks installed on every run | `"flatpak-id"` |
+| `OPTIONAL_APPS` | The optional applications offered at the start | `"Label\|type:id"`, with `flatpak`, `rpm` or `script` as the type |
+| `GNOME_EXTENSIONS` | Extensions installed and enabled | `"uuid\|Name"` |
+| `GNOME_EXTENSIONS_DISABLED` | Extensions installed and left disabled | `"uuid\|Name"` |
+| `GNOME_BLOAT_APPS` | GNOME applications offered for removal | `"flatpak-id\|dnf-package\|pacman-package\|Name"`, with `-` where there is none |
+| `OPTIONAL_PIN_ORDER` | The order of optional applications in the dock | `"flatpak-id\|desktop-file-name"` |
+| `DOCKER_SERVICES` | The Compose services offered at the start | `"Label\|folder"`, a folder under `docker/` |
 
-### Adding essential Flatpaks
-
-Edit the `ESSENTIAL_APPS` array in `install.sh`.
-
-### Adding GNOME extensions
-
-Edit the `GNOME_EXTENSIONS` array in `install.sh`. Format: `"uuid|Human-readable name"`.
-
-### Updating GNOME settings
-
-Export your current settings and overwrite the relevant file:
+A profile's GNOME settings are the `.dconf` files in `gnome/desktop/` or `gnome/laptop/`, loaded in number order with `dconf load /`, so each section names a full path such as `[org/gnome/desktop/interface]`. The current value of a key is read with `dconf read`, as in:
 
 ```bash
-dconf dump / > ~/.dotfiles/gnome/desktop.dconf
-dconf dump / > ~/.dotfiles/gnome/laptop.dconf
+dconf read /org/gnome/desktop/interface/clock-format
 ```
 
-Then commit and push so future installs pick them up.
+and written into the section of the matching file. The profile's `setup.sh` runs after its files load.
+
+The installer clones the address in `REPO_URL` at the head of `install.sh`, so a fork sets it to its own address, and its later installs take what it has pushed.
 
 ## License
 
-This project is licensed under the **GNU General Public License v3.0 or later** - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **GNU General Public License v3.0 or later**, as the [LICENSE](LICENSE) file sets out.
