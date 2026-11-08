@@ -362,7 +362,9 @@ Replies and to the reviewing session, by file, with the reason.
       right, and the profile's second import set the center back. The headers of both profiles'
       scripts and their last lines follow STYLE.md, "optimised" among them.
     - The services' READMEs are item 3's.
-    - Checked by the checks of STYLE.
+    - Checked by the checks of STYLE.md over the README, whose hits are the header's HTML
+      attribute and the extension's name, Just Perfection, by `curl` on the README's links, each
+      returning 200, and by the name check, which finds nothing in the tree.
     - Open. Shellcheck over every changed script, once the owner has installed it, and item 6,
       which waits for the owner's confirmation.
 
